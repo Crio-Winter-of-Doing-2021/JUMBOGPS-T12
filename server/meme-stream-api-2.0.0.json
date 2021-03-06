@@ -1,0 +1,329 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "XMEME REST API",
+    "description": "A REST API for the xmeme - meme stream app",
+    "contact": {
+      "name": "Archisman Chakraborty",
+      "url": "https://flarrowverse-portfolio-page.netlify.app/",
+      "email": "codeviper18@gmail.com"
+    },
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081/",
+      "description": "REST API Dev Server"
+    },
+    {
+      "url": "https://virtserver.swaggerhub.com/flarrowverse/meme-stream-api/1.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Memes",
+      "description": "A REST API to manage Memes for the Meme Stream Web App"
+    }
+  ],
+  "paths": {
+    "/memes": {
+      "get": {
+        "tags": [
+          "Memes"
+        ],
+        "description": "Obtain the latest 100 memes submitted via the meme stream app",
+        "responses": {
+          "200": {
+            "description": "successful fetch of latest 100 memes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Memes"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error in fetching memes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_404"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Memes"
+        ],
+        "description": "Submit a meme to the database",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Meme"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful creation of new meme",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meme"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error in creating new meme",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_500"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memes/{id}": {
+      "get": {
+        "tags": [
+          "Memes"
+        ],
+        "description": "Obtain the a specific meme submitted via the meme stream app",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the meme that is to be edited",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "example": 4
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful fetch of meme with id passed as parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meme"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error in fetching memes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_404"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Memes"
+        ],
+        "description": "Delete a specific meme submitted via the meme stream app",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the meme that is to be deleted",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "example": 4
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful deletion of meme with id passed as parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error in deleting meme",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_404_1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Memes"
+        ],
+        "description": "Update a specific meme submitted via the meme stream app",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the meme that is to be edited",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "example": 4
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Meme"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated Meme with id passed as parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error in updating meme",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_404_2"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Meme": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 4
+          },
+          "name": {
+            "type": "string",
+            "example": "Archisman Chakraborty"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://i.pinimg.com/originals/87/7a/13877a13c05bd3699376c4124761062a6d.png"
+          },
+          "caption": {
+            "type": "string",
+            "example": "This is a coding meme"
+          }
+        },
+        "description": "Model containing Meme info"
+      },
+      "Memes": {
+        "type": "array",
+        "description": "Array of Memes",
+        "items": {
+          "$ref": "#/components/schemas/Meme"
+        }
+      },
+      "inline_response_404": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Some error in retrieving Memes"
+          }
+        }
+      },
+      "inline_response_500": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Some error in creating Meme"
+          }
+        }
+      },
+      "inline_response_200": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Meme with id 4 was successfully deleted"
+          }
+        }
+      },
+      "inline_response_404_1": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Some error in deleting Meme"
+          }
+        }
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Successfully updated Meme with id 4"
+          }
+        }
+      },
+      "inline_response_404_2": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Some error in updating Meme"
+          }
+        }
+      }
+    }
+  }
+}
