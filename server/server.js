@@ -2,7 +2,7 @@ const express = require('express'); // for server
 const bodyParser = require('body-parser'); // for parsing requests sent to and from client and db
 // swagger documentation
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./meme-stream-api-2.0.0.json');
+const swaggerDocument = require('./asset-tracking-api-1.0.0.json');
 
 const app = express(); // express app creation
 
