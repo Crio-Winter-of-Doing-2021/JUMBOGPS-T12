@@ -28,6 +28,13 @@
   color: #61dafb;
 }
 
+.my-draggable {
+  cursor: pointer;
+  width: 200px;
+  height: 200px;
+  background-color: #cca;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
