@@ -29,7 +29,8 @@ Asset: {
 const AssetSchema = mongoose.Schema({
     id: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
@@ -64,10 +65,10 @@ const AssetSchema = mongoose.Schema({
           required: true
         },
         coordinates: {
-          type: [[Number]],
+          type: [{ts: Date, lat: Number, long: Number}],
           required: true
         }
     }
-});
+}, { collection: 'assets' });
 
 module.exports = mongoose.model('Asset', AssetSchema);

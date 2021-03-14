@@ -2,7 +2,7 @@ const express = require('express'); // for server
 const bodyParser = require('body-parser'); // for parsing requests sent to and from client and db
 // swagger documentation
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./asset-tracking-api-1.0.0.json');
+const swaggerDocument = require('./meme-stream-api-2.0.0.json');
 
 const app = express(); // express app creation
 
@@ -23,15 +23,18 @@ const mongoose = require('mongoose');
 mongoose.connect(
     dbConfig.url,
     { useNewUrlParser: true },
-    () => console.log('Connected to local database assets')
+    () => console.log('Connected to local database Assets')
 );  
 
 // base url get request
-const apiRoutes = require('./app/routes/assets.api');
-app.use('/assets', apiRoutes);
+const assetApiRoutes = require('./app/routes/assets.api');
+app.use('/api/assets', assetApiRoutes);
+
+const userApiRoutes = require('./app/routes/users.api');
+app.use('/api/users', userApiRoutes);
 
 // serving swagger docs
-app.use("/swagger-ui", swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
+app.use("/api/swagger-ui", swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
 
 // starting server on port 8081
 const server = app.listen(8081, () => {
