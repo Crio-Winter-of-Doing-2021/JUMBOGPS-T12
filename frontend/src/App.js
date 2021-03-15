@@ -12,14 +12,7 @@ function App() {
 
   const [parentVal, setParentVal] = useState(100);
   const [assetToDisplay, setAssetToDisplay] = useState(null);
-  const [findAsset, setfindAsset] = useState(null);
-
-  // let assetToDisplay = null;
-
-  // const setAssetToDisplay = (value)=>{
-  //   assetToDisplay = value;
-  //   console.log(assetToDisplay);
-  // }
+  const [findAsset, setfindAsset] = useState(0);
 
   const findAssetSubmitHandler = ()=>{
     

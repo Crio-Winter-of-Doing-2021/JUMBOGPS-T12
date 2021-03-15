@@ -112,7 +112,6 @@ export default function Dashboard(props) {
       style={style}
       className={className}
     >
-     
       {children}
     </div>
   );

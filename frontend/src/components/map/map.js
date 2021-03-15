@@ -14,7 +14,7 @@ class Map extends React.Component {
       lng: 78.486671,
       lat: 17.385044,
       zoom: 7,
-      dispHistoryOfRoute:false
+      dispHistoryOfRoute: false,
     };
   }
 
@@ -37,7 +37,6 @@ class Map extends React.Component {
       // this.loadMap()
       let assetGeoJson = null;
       let results = null;
-      console.log(this.props.assetToDisplay);
       if (this.props.assetToDisplay.length > 0) {
         // assetGeoJson   = await fetchFakeData({longitude:78.486671 , latitude:17.385044});
         results = await this.fetchAssetLocations();
@@ -138,13 +137,14 @@ class Map extends React.Component {
           geometry: {
             type: "Point",
             coordinates: [
-              asset.location.coordinates[0][0],
-              asset.location.coordinates[0][1],
+              asset.location.coordinates[asset.location.coordinates.length-1][0],
+              asset.location.coordinates[asset.location.coordinates.length -1][1],
             ],
           },
           properties: {
             id,
-            name: `Random Point #${id}`,
+            name: `${asset.name}`,
+            type:`${asset.type}`,
             description: `description for asset id ${asset.id}`,
           },
         };
@@ -167,28 +167,45 @@ class Map extends React.Component {
           "icon-image": "triangle-15", // this will put little croissants on our map
           "icon-padding": 0,
           "icon-allow-overlap": true,
-          
-
-          
         },
+      });
+
+      this.map.on("click", "random-points-layer", (e) => {
+        let coordinates = e.features[0].geometry.coordinates.slice();
+        var description = "Sample Test description";
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setHTML(description)
+          .addTo(this.map);
+
+
+          this.map.on('mouseenter', 'random-points-layer', e => {
+            if (e.features.length) {
+              this.map.getCanvas().style.cursor = 'pointer';
+            }
+          });
+
+
+          this.map.on('mouseleave', 'random-points-layer', () => {
+            this.map.getCanvas().style.cursor = '';
+          });
       });
 
       this.map.on("moveend", async () => {
         // get new center coordinates
-
         // fetch new data
         /**Uncommnet to fetch fake data */
         // const results = await fetchFakeData({longitude:lng, latitude:lat});
-
         // let results = await this.fetchAssetLocations();
         // let assetGeoJson = this.formatToGeoJson(results);
-        
-
-        /** 
+        /**
          * update "random-points-data" source with new data
          * all layers that consume the "random-points-data" data source will be updated automatically
-         * */ 
-        
+         * */
         // this.map.getSource("random-points-data").setData(assetGeoJson);
       });
     });
