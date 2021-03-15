@@ -32,4 +32,8 @@ router.patch('/', async (req, res) => {
     assetController.updateOne(req, res);
 });
 
+router.get('/filter', async (req, res) => {
+    assetController.filterAsset(req, res);
+});
+
 module.exports = router;

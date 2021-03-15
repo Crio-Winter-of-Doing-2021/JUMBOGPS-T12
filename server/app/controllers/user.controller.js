@@ -1,14 +1,24 @@
 const User = require('../models/Users.js'); // User
 
+const bcrypt = require('bcryptjs');
+
+function hashPassword(password) {
+    return bcrypt.hashSync(password);
+}
+
+function checkPassword(input, password) {
+    return bcrypt.compareSync(password, input);
+}
+
 // create a new user
 exports.create = (req, res) => {
 
-    // register an user
+    // register an user    
     const user = new User({
         id: req.body.id,
         name: req.body.name,
         type: req.body.type,
-        password: req.body.password
+        password: hashPassword(req.body.password)
     });
 
     // saving a new user to the database
@@ -21,23 +31,43 @@ exports.create = (req, res) => {
     });
 };
 
+function getUserInfo(user) {
+    return {
+        id: user.id, name: user.name, type: user.type
+    };
+}
+
 // find all users
 exports.findAll = (req, res) => {
     User.find()
     .then(users => {                
-        res.send(users);
+        res.send(users.map(user => getUserInfo(user)));
     })
     .catch(err => {
         res.status(404).send({message: err.message || 'Some error in retrieving Users'});
     });
 };
 
+exports.authenticate = (req, res) => {
+    User.findOne({id: req.body.id})
+    .then(user => {                
+        if (checkPassword(user.password, req.body.password)) {
+            res.status(200).send({ token: user.id+'token'});
+        } else {
+            res.status(401).send({ message: 'Invalid password'});
+        }
+    })
+    .catch(err => {
+        res.status(404).send({message: err.message || 'User ID does not exist'}); // error handling
+    });
+};
+
 // find a specific user with id passed as parameter
-exports.findOne = (req, res) => {
-    const reqId = req.query.id; // required id    
-    User.find({id: reqId}) 
+exports.findOne = (req, res) => {    
+    User.findOne({id: req.query.id}) 
     .then(user => {
-        res.status(200).send(user);
+        
+        res.status(200).send(getUserInfo(user));
     })
     .catch(err => {
         res.status(404).send({message: err.message || 'Some error in retrieving User'}); // error handling

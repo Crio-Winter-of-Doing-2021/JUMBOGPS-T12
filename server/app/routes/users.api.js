@@ -14,8 +14,12 @@ router.get('/', async (req, res) => {
     }    
 });
 
+router.get('/login', async (req, res) => {
+    userController.authenticate(req, res);
+});
+
 // add a user to db
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
     userController.create(req, res);
 });
 

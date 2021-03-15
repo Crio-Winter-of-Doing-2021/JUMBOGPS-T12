@@ -1,20 +1,29 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Jumbotail Asset Tracking",
-    "description": "Asset Tracking Portal",
-    "version": "1.0.0"
+    "title": "XMEME REST API",
+    "description": "A REST API for the xmeme - meme stream app",
+    "contact": {
+      "name": "Archisman Chakraborty",
+      "url": "https://flarrowverse-portfolio-page.netlify.app/",
+      "email": "codeviper18@gmail.com"
+    },
+    "version": "2.0.0"
   },
   "servers": [
     {
       "url": "http://localhost:8081/",
       "description": "REST API Dev Server"
-    }    
+    },
+    {
+      "url": "https://virtserver.swaggerhub.com/flarrowverse/meme-stream-api/1.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    }
   ],
   "tags": [
     {
-      "name": "Asset",
-      "description": "A REST API to manage Assets for the Asset tracking portal"
+      "name": "Memes",
+      "description": "A REST API to manage Memes for the Meme Stream Web App"
     }
   ],
   "paths": {
@@ -252,13 +261,13 @@
             "example": "This is a coding meme"
           }
         },
-        "description": "Model containing Asset info"
+        "description": "Model containing Meme info"
       },
-      "Assets": {
+      "Memes": {
         "type": "array",
-        "description": "Array of Assets",
+        "description": "Array of Memes",
         "items": {
-          "$ref": "#/components/schemas/Asset"
+          "$ref": "#/components/schemas/Meme"
         }
       },
       "inline_response_404": {
