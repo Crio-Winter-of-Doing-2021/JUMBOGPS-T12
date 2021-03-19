@@ -1,0 +1,564 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Jumbotail Asset Tracking Portal API",
+    "description": "This is a REST API designed for the Jumbotail Asset Tracking Portal",    
+    "version": "1.0.0"
+  },
+  "servers": [    
+    {
+      "url": "http://localhost:8081/api/",
+      "description": "Jumbotail GPS Asset Tracking Portal Dev Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Assets",
+      "description": "Asset tracking endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User management endpoints"
+    }
+  ],
+  "paths": {
+    "/api/assets": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Returns list of recent locations and timestamps for all assets",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "getAssets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass an optional id for detailed asset data",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "A101"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Add a new asset",
+        "description": "Adds an asset to the system",
+        "operationId": "addAsset",
+        "requestBody": {
+          "description": "New Asset to be added",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Asset"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "item created"
+          },
+          "400": {
+            "description": "invalid input, object invalid"
+          },
+          "409": {
+            "description": "an existing item already exists"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Updates an asset location based on its id",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "updateAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass a required id for detailed asset data",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New Asset data to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Asset"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Asset"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    },
+    "/api/assets/filter": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Returns list of assets based on id, type, start or end time",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "filterAssets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass an optional id for detailed asset data",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "pass an optional type for detailed asset data",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "pass an optional start time for detailed asset data",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "pass an optional end time for detailed asset data",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Assets"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    },
+    "/api/users/register": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "registers a new user",
+        "description": "Registers a new user into the system",
+        "operationId": "register",
+        "requestBody": {
+          "description": "User details to be registered",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "user registered"
+          },
+          "400": {
+            "description": "invalid input, object invalid"
+          },
+          "409": {
+            "description": "a user with same uid already exists"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns list of users",
+        "description": "By passing in the appropriate options, you can search for\na list of users or a specific user\n",
+        "operationId": "getUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass an optional id for user details",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete a user",
+        "description": "Delete a user with id passed in query string\n",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass an for user to be deleted",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "user101"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "update a user",
+        "description": "Update a user with id passed in query string\n",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "pass an for user to be updated",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "user101"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "User type to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "search results matching criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_3"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Login for a user",
+        "description": "Helps a user login to the system",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "user logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_201"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input, object invalid"
+          },
+          "404": {
+            "description": "user not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Asset": {
+        "required": [
+          "coordinates",
+          "id",
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uid",
+            "example": "A101"
+          },
+          "name": {
+            "type": "string",
+            "example": "Delivery 1"
+          },
+          "type": {
+            "type": "string",
+            "example": "Truck"
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/Asset_coordinates"
+          }
+        },
+        "description": "Model containing asset details"
+      },
+      "Assets": {
+        "type": "array",
+        "description": "Array of assets",
+        "items": {
+          "$ref": "#/components/schemas/Asset"
+        }
+      },
+      "User": {
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user101"
+          },
+          "name": {
+            "type": "string",
+            "example": "New Tracker"
+          },
+          "type": {
+            "type": "string",
+            "example": "Tracker"
+          }
+        },
+        "description": "Contains user details"
+      },
+      "Users": {
+        "type": "array",
+        "description": "Array of users",
+        "items": {
+          "$ref": "#/components/schemas/User"
+        }
+      },
+      "inline_response_200": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Asset"
+          },
+          {
+            "$ref": "#/components/schemas/Assets"
+          }
+        ]
+      },
+      "inline_response_200_1": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "$ref": "#/components/schemas/Users"
+          }
+        ]
+      },
+      "inline_response_200_2": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "user with id user101 deleted"
+          }
+        }
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "Admin"
+          }
+        }
+      },
+      "inline_response_200_3": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "user with id user101 updated"
+          }
+        }
+      },
+      "body_1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user101"
+          },
+          "password": {
+            "type": "string",
+            "example": "trackerPass10101"
+          }
+        }
+      },
+      "inline_response_201": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "userToken10101"
+          }
+        }
+      },
+      "Asset_coordinates": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string",
+            "example": "2021-03-14T06:10:23.000Z"
+          },
+          "lat": {
+            "type": "number",
+            "format": "float",
+            "example": -102.235
+          },
+          "long": {
+            "type": "number",
+            "format": "float",
+            "example": 123.456
+          }
+        }
+      }
+    }
+  }
+}
