@@ -36,4 +36,8 @@ router.get('/filter', async (req, res) => {
     assetController.filterAsset(req, res);
 });
 
+router.get('/filter/time', async (req, res) => {
+    assetController.timeFilterAsset(req, res);
+});
+
 module.exports = router;

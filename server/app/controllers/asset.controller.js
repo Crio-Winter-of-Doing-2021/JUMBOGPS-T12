@@ -11,21 +11,18 @@ exports.create = (req, res) => {
         route: {
             src: req.body.src,
             dest: req.body.dest,
-            start: req.body.start,
-            end: req.body.end
+            start: new Date(req.body.start),
+            end: new Date(req.body.end)
         },
         location: {
             type: 'Point',
             coordinates: [{
-                ts: req.body.ts,
+                ts: new Date(req.body.ts),
                 lat: req.body.lat,
                 long: req.body.long
             }]
         }
     });
-
-    // console.log(asset.route.start.getHours());
-    // console.log(asset.route.end.getMinutes());
 
     // saving a new asset to the database
     asset.save()
@@ -80,12 +77,53 @@ exports.filterAsset = (req, res) => {
     var id, type, start, end;
     if (req.query.id) id = req.query.id;        
     if (req.query.type) type = req.query.type;
-    if (req.query.start) start = Date(req.query.start);
-    if (req.query.end) end = Date(req.query.end);
+    
+    if (req.query.start) start = new Date(req.query.start);
+    if (req.query.end) end = new Date(req.query.end);
     
     Asset.find({$or: [{id: id}, {type: type}, {start: start}, {end: end}, {start: start, end: end}]})
     .then(asset => {
         res.status(200).send(asset);
+    })
+    .catch(err => {
+        res.status(404).send({ message: err.message || 'Asset not found' });
+    });
+};
+
+function inRange(coords, start, end) {
+    return (coords.ts >= start && coords.ts <= end);
+}
+
+function getCoordsInRange(asset, start, end) {
+    let coords = [];
+    for (var i = 0; i < asset.location.coordinates.length; i++) {
+        if (inRange(asset.location.coordinates[i], start, end)) {
+            coords.push(asset.location.coordinates[i]);
+        }
+    }
+    console.log(coords);
+    var info = getAssetInfo(asset);
+    info.coordinates = coords;
+    console.log(info);
+    return info;
+}
+
+function filterCoords(assets, start, end) {
+    return assets.map(asset => getCoordsInRange(asset, start, end));
+}
+
+exports.timeFilterAsset = (req, res) => {
+    var start, end;
+    
+    if (req.query.start) start = new Date(req.query.start);
+    if (req.query.end) end = new Date(req.query.end);
+
+    console.log(start);
+    console.log(end);
+    
+    Asset.find()
+    .then(assets => {
+        res.status(200).send(filterCoords(assets, start, end));
     })
     .catch(err => {
         res.status(404).send({ message: err.message || 'Asset not found' });
@@ -111,7 +149,7 @@ exports.updateOne = (req, res) => {
     const reqId = req.query.id; // required id
 
     Asset.updateOne({id: reqId}, {$push: {'location.coordinates': [
-        {ts: Date(req.body.ts), lat: +req.body.lat, long: +req.body.long}
+        {ts: new Date(req.body.ts), lat: +req.body.lat, long: +req.body.long}
     ]}})
     .then(transaction => {        
         res.status(200).send({message: 'Successfully updated Asset with id '+ reqId}); // update process info
