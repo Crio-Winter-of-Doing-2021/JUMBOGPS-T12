@@ -1,8 +1,10 @@
 import React from "react";
+import ReactDOM from 'react-dom';
 import mapboxgl from "mapbox-gl";
 import fetchFakeData from "../../api/fetchFakeData";
-import { fetchAssets } from "../../api/apli-client";
+import { fetchAssets, fetchAssetDetails } from "../../api/apli-client";
 import { connect } from "react-redux";
+import Popup from '../popup/popup';
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoidGVqZXN3YXIiLCJhIjoiY2tscmhqeGl5MGNtYjJ5bXA1ZTh6NmhxbSJ9.MJs8AL6WXpBPZ-qvz-GBqw";
@@ -18,90 +20,99 @@ class Map extends React.Component {
     };
   }
 
-  fetchAssetLocations = async () => {
-    const assetDetails = await fetchAssets();
+  // fetchAssetLocations =  () => {
+  //   const assetDetails =  fetchAssets();
 
-    this.props.addAssetDetails(assetDetails.data);
-    return assetDetails.data;
-  };
+  //   this.props.addAssetDetails(assetDetails);
+  //   return assetDetails;
+  // };
+
+  fetchAssetDetails =  async (id)=>{
+
+   let assetDetails = await fetchAssetDetails(id)
+    // this.setState({selectedAssetDetails:assetDetails});
+    return assetDetails;
+  }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (
-      this.props.numberOfAssetsToDisplay != nextProps.numberOfAssetsToDisplay ||
-      this.props.assetToDisplay != nextProps.assetToDisplay
-    );
+    // return (
+    //   this.props.numberOfAssetsToDisplay != nextProps.numberOfAssetsToDisplay ||
+    //   this.props.assetToDisplay != nextProps.assetToDisplay || this.state!=nextState
+    // );
+
+    return(
+      this.props!=nextProps || this.state.nextState
+    )
   }
 
+
+  viewTimelineView = async (findAsset)=>{
+
+    this.props.viewTimelineView(findAsset);
+    
+   }
   async componentDidUpdate() {
     if (this.shouldComponentUpdate) {
-      // this.loadMap()
-      let assetGeoJson = null;
-      let results = null;
-      if (this.props.assetToDisplay.length > 0) {
-        // assetGeoJson   = await fetchFakeData({longitude:78.486671 , latitude:17.385044});
-        results = await this.fetchAssetLocations();
-        console.log(results);
-        results = results.filter(
-          (eachAsset) => eachAsset.id === this.props.assetToDisplay
-        );
-        this.map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: [
-                [78.52185571453919, 17.4397333235504],
-                [78.53185571453918, 17.4397333235505],
-                [78.54185571453919, 17.4397333235506],
-                [78.55185571453919, 17.4397333235507],
-                [78.56185571453919, 17.4397333235508],
-              ],
-            },
-          },
-        });
+      // let assetGeoJson = null;
+      // let results = null;
+      // if (this.props.assetToDisplay.length > 0) {
+      //   // assetGeoJson   = await fetchFakeData({longitude:78.486671 , latitude:17.385044});
+      //   results = await this.fetchAssetDetails(this.props.assetToDisplay);
+      //   debugger;
+      //   results = results.data.filter(
+      //     (eachAsset) => eachAsset.id === this.props.assetToDisplay
+      //   );
+      //   debugger;
+   
+      //     assetGeoJson = this.formatToGeoJson(results);
 
-        this.map.addLayer({
-          id: "route",
-          type: "line",
-          source: "route",
-          layout: {
-            "line-join": "round",
-            "line-cap": "round",
-          },
-          paint: {
-            "line-color": "#888",
-            "line-width": 8,
-          },
-        });
+        
+        const {assetsToDisplay} = this.props;
+        debugger;
+        if(assetsToDisplay){
+            if(this.map.getSource("random-points-data")){
+              this.map.getSource("random-points-data").setData(assetsToDisplay);
+            }
+           
+          
+      
+        }
+        
+   
+      // } else if(this.props.assetToDisplay===""){
+       
+      //   let assetGeoJson = await this.getAllAssetDetails();
+        
+      //   this.map.getSource("random-points-data").setData(assetGeoJson);
+      // }
 
-        assetGeoJson = this.formatToGeoJson(results);
-      } else {
-        //  results = await fetchFakeData({longitude:78.486671 , latitude:17.385044});
-        results = await this.fetchAssetLocations();
-        assetGeoJson = this.formatToGeoJson(results);
-      }
 
-      this.map.getSource("random-points-data").setData(assetGeoJson);
     }
+    
+  }
+
+  setAssetToDisplay = (assetsToDisplay)=>{
+    this.map.getSource("random-points-data").setData(assetsToDisplay);
   }
   formatToGeoJson = (assetDetails) => {
-    assetDetails.slice(0, this.props.numberOfAssetsToDisplay);
-    let featureList = assetDetails.map((asset, id) => {
+    debugger;
+
+    let featureList = assetDetails[0].location.coordinates.map((coordinates, id) => {   
       return {
         type: "Feature",
         geometry: {
           type: "Point",
           coordinates: [
-            asset.location.coordinates[0][0],
-            asset.location.coordinates[0][1],
+     
+              coordinates.long, coordinates.lat
           ],
         },
         properties: {
-          id,
-          name: `Random Point #${id}`,
-          description: `description for asset id ${asset.id}`,
+          id:`${assetDetails[0].id}`,
+          name: `${assetDetails[0].name}`,
+          assetType:`${assetDetails[0].type}`,
+          description: `description for asset id ${assetDetails[0].id}`,
+          timeStamp:`${coordinates.ts}`
         },
       };
     });
@@ -116,6 +127,39 @@ class Map extends React.Component {
     this.loadMap();
   }
 
+
+  getAllAssetDetails = async ()=>{
+    debugger;
+    // let results = await this.fetchAssetLocations();
+    let results =  this.props.assetDetails;
+    debugger;
+    results = results.data.slice(0, this.props.numberOfAssetsToDisplay);
+    let featureList = results.map((asset, id) => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [
+            asset.coordinates.long,
+            asset.coordinates.lat,
+          ],
+        },
+        properties: {
+          id:`${asset.id}`,
+          name: `${asset.name}`,
+          assetType:`${asset.type}`,
+          description: `description for asset id ${asset.id}`,
+        },
+      };
+    });
+    let assetGeoJson = {
+      type: "FeatureCollection",
+      features: featureList,
+    };
+
+    return assetGeoJson;
+  }
+
   loadMap = () => {
     const { lng, lat, zoom } = this.state;
 
@@ -125,34 +169,47 @@ class Map extends React.Component {
       center: [lng, lat],
       zoom,
     });
-    this.map.on("load", async () => {
+    this.map.on("load", () => {
+      const {map} = this;
+      const {assetsToDisplay} = this.props;
       // add the data source for new a feature collection with no features
 
       /**Fetching asset locations, Change later */
-      let results = await this.fetchAssetLocations();
-      results = results.slice(0, this.props.numberOfAssetsToDisplay);
-      let featureList = results.map((asset, id) => {
-        return {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [
-              asset.location.coordinates[asset.location.coordinates.length-1][0],
-              asset.location.coordinates[asset.location.coordinates.length -1][1],
-            ],
-          },
-          properties: {
-            id,
-            name: `${asset.name}`,
-            type:`${asset.type}`,
-            description: `description for asset id ${asset.id}`,
-          },
-        };
-      });
-      let assetGeoJson = {
-        type: "FeatureCollection",
-        features: featureList,
-      };
+      // let results = await this.fetchAssetLocations();
+      // results = results.data.slice(0, this.props.numberOfAssetsToDisplay);
+      // let featureList = results.map((asset, id) => {
+      //   return {
+      //     type: "Feature",
+      //     geometry: {
+      //       type: "Point",
+      //       coordinates: [
+      //         asset.coordinates.long,
+      //         asset.coordinates.lat,
+      //       ],
+      //     },
+      //     properties: {
+      //       id:`${asset.id}`,
+      //       name: `${asset.name}`,
+      //       assetType:`${asset.type}`,
+      //       description: `description for asset id ${asset.id}`,
+      //     },
+      //   };
+      // });
+      // let assetGeoJson = {
+      //   type: "FeatureCollection",
+      //   features: featureList,
+      // };
+
+      // let assetGeoJson = await this.getAllAssetDetails();
+      debugger;
+      map.loadImage(
+        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+        function(error,image){
+          if (error) throw error;
+          map.addImage('custom-marker', image);
+        }
+      )
+      let assetGeoJson = assetsToDisplay;
       this.map.addSource("random-points-data", {
         type: "geojson",
         data: assetGeoJson,
@@ -164,22 +221,30 @@ class Map extends React.Component {
         type: "symbol",
         layout: {
           // full list of icons here: https://labs.mapbox.com/maki-icons
-          "icon-image": "triangle-15", // this will put little croissants on our map
-          "icon-padding": 0,
-          "icon-allow-overlap": true,
+          "icon-image": 'custom-marker', // this will put little croissants on our map
+
         },
       });
 
       this.map.on("click", "random-points-layer", (e) => {
+        // this.fetchAssetDetails(e.features[0].properties.id);
+        const popupNode = document.createElement('div');
+        debugger;
+
+        
+   
+            ReactDOM.render(<Popup viewTimelineView={this.viewTimelineView} features={e.features[0].properties}/>, popupNode);
+
+      
         let coordinates = e.features[0].geometry.coordinates.slice();
-        var description = "Sample Test description";
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
         new mapboxgl.Popup()
           .setLngLat(coordinates)
-          .setHTML(description)
+          .setDOMContent(popupNode)
+          // .setHTML(description)
           .addTo(this.map);
 
 
@@ -211,13 +276,15 @@ class Map extends React.Component {
     });
 
     this.map.on("move", () => {
-      const { lng, lat } = this.map.getCenter();
+    //   const { lng, lat } = this.map.getCenter();
 
-      this.setState({
-        lng: lng.toFixed(4),
-        lat: lat.toFixed(4),
-        zoom: this.map.getZoom().toFixed(4),
-      });
+    //   console.log(`lng:${lng}`)
+    //   console.log(`lat:${lat}`)
+    //   this.setState({
+    //     lng: lng.toFixed(4),
+    //     lat: lat.toFixed(4),
+    //     zoom: this.map.getZoom().toFixed(4),
+    //   });
     });
   };
 
@@ -258,4 +325,4 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Map);
+export default Map;
