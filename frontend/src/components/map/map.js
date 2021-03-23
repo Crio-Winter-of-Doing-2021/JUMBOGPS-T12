@@ -1,10 +1,10 @@
 import React from "react";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 import mapboxgl from "mapbox-gl";
 import fetchFakeData from "../../api/fetchFakeData";
 import { fetchAssets, fetchAssetDetails } from "../../api/apli-client";
 import { connect } from "react-redux";
-import Popup from '../popup/popup';
+import Popup from "../popup/popup";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoidGVqZXN3YXIiLCJhIjoiY2tscmhqeGl5MGNtYjJ5bXA1ZTh6NmhxbSJ9.MJs8AL6WXpBPZ-qvz-GBqw";
@@ -15,7 +15,7 @@ class Map extends React.Component {
     this.state = {
       lng: 78.486671,
       lat: 17.385044,
-      zoom: 7,
+      zoom: 15,
       dispHistoryOfRoute: false,
     };
   }
@@ -27,12 +27,11 @@ class Map extends React.Component {
   //   return assetDetails;
   // };
 
-  fetchAssetDetails =  async (id)=>{
-
-   let assetDetails = await fetchAssetDetails(id)
+  fetchAssetDetails = async (id) => {
+    let assetDetails = await fetchAssetDetails(id);
     // this.setState({selectedAssetDetails:assetDetails});
     return assetDetails;
-  }
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
     // return (
@@ -40,17 +39,12 @@ class Map extends React.Component {
     //   this.props.assetToDisplay != nextProps.assetToDisplay || this.state!=nextState
     // );
 
-    return(
-      this.props!=nextProps || this.state.nextState
-    )
+    return this.props != nextProps || this.state.nextState;
   }
 
-
-  viewTimelineView = async (findAsset)=>{
-
+  viewTimelineView = async (findAsset) => {
     this.props.viewTimelineView(findAsset);
-    
-   }
+  };
   async componentDidUpdate() {
     if (this.shouldComponentUpdate) {
       // let assetGeoJson = null;
@@ -63,59 +57,59 @@ class Map extends React.Component {
       //     (eachAsset) => eachAsset.id === this.props.assetToDisplay
       //   );
       //   debugger;
-   
+
       //     assetGeoJson = this.formatToGeoJson(results);
 
-        
-        const {assetsToDisplay} = this.props;
-        debugger;
-        if(assetsToDisplay){
-            if(this.map.getSource("random-points-data")){
-              this.map.getSource("random-points-data").setData(assetsToDisplay);
-            }
-           
-          
-      
+      const { assetsToDisplay } = this.props;
+
+      if (assetsToDisplay) {
+        if (this.map.getSource("random-points-data")) {
+          this.map.getSource("random-points-data").setData(assetsToDisplay);
         }
-        
-   
+        if (assetsToDisplay.features.length > 0) {
+          this.map.flyTo({
+            center: [
+              assetsToDisplay.features[0].geometry.coordinates[0],
+              assetsToDisplay.features[0].geometry.coordinates[1],
+            ],
+            essential: true,
+          });
+        }
+      }
+
       // } else if(this.props.assetToDisplay===""){
-       
+
       //   let assetGeoJson = await this.getAllAssetDetails();
-        
+
       //   this.map.getSource("random-points-data").setData(assetGeoJson);
       // }
-
-
     }
-    
   }
 
-  setAssetToDisplay = (assetsToDisplay)=>{
+  setAssetToDisplay = (assetsToDisplay) => {
     this.map.getSource("random-points-data").setData(assetsToDisplay);
-  }
+  };
   formatToGeoJson = (assetDetails) => {
     debugger;
 
-    let featureList = assetDetails[0].location.coordinates.map((coordinates, id) => {   
-      return {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [
-     
-              coordinates.long, coordinates.lat
-          ],
-        },
-        properties: {
-          id:`${assetDetails[0].id}`,
-          name: `${assetDetails[0].name}`,
-          assetType:`${assetDetails[0].type}`,
-          description: `description for asset id ${assetDetails[0].id}`,
-          timeStamp:`${coordinates.ts}`
-        },
-      };
-    });
+    let featureList = assetDetails[0].location.coordinates.map(
+      (coordinates, id) => {
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [coordinates.long, coordinates.lat],
+          },
+          properties: {
+            id: `${assetDetails[0].id}`,
+            name: `${assetDetails[0].name}`,
+            assetType: `${assetDetails[0].type}`,
+            description: `description for asset id ${assetDetails[0].id}`,
+            timeStamp: `${coordinates.ts}`,
+          },
+        };
+      }
+    );
     let assetGeoJson = {
       type: "FeatureCollection",
       features: featureList,
@@ -127,11 +121,10 @@ class Map extends React.Component {
     this.loadMap();
   }
 
-
-  getAllAssetDetails = async ()=>{
+  getAllAssetDetails = async () => {
     debugger;
     // let results = await this.fetchAssetLocations();
-    let results =  this.props.assetDetails;
+    let results = this.props.assetDetails;
     debugger;
     results = results.data.slice(0, this.props.numberOfAssetsToDisplay);
     let featureList = results.map((asset, id) => {
@@ -139,15 +132,12 @@ class Map extends React.Component {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [
-            asset.coordinates.long,
-            asset.coordinates.lat,
-          ],
+          coordinates: [asset.coordinates.long, asset.coordinates.lat],
         },
         properties: {
-          id:`${asset.id}`,
+          id: `${asset.id}`,
           name: `${asset.name}`,
-          assetType:`${asset.type}`,
+          assetType: `${asset.type}`,
           description: `description for asset id ${asset.id}`,
         },
       };
@@ -158,10 +148,29 @@ class Map extends React.Component {
     };
 
     return assetGeoJson;
-  }
+  };
+
+  // fetchCurrentPosition = ()=>{
+
+  //   if ("geolocation" in navigator) {
+  //     navigator.geolocation.getCurrentPosition(function(position) {
+
+  //       const currentPosition = {lat:position.coords.latitude,long:position.coords.longitude}
+  //       return currentPosition;
+  //     });
+  //   } else {
+  //     console.log("Not Available");
+  //   }
+
+  // }
 
   loadMap = () => {
     const { lng, lat, zoom } = this.state;
+
+    // debugger;
+    console.log(this.props.assetsToDisplay);
+
+    // const currentPosition = this.fetchCurrentPosition();
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
@@ -170,8 +179,9 @@ class Map extends React.Component {
       zoom,
     });
     this.map.on("load", () => {
-      const {map} = this;
-      const {assetsToDisplay} = this.props;
+      const { map } = this;
+      const { assetsToDisplay } = this.props;
+
       // add the data source for new a feature collection with no features
 
       /**Fetching asset locations, Change later */
@@ -201,14 +211,27 @@ class Map extends React.Component {
       // };
 
       // let assetGeoJson = await this.getAllAssetDetails();
-      debugger;
       map.loadImage(
-        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
-        function(error,image){
+        "https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png",
+        function (error, image) {
           if (error) throw error;
-          map.addImage('custom-marker', image);
+          map.addImage("custom-marker", image);
         }
-      )
+      );
+        debugger;
+      if(assetsToDisplay.features && assetsToDisplay.features.length){
+
+        map.flyTo({
+          center: [
+            assetsToDisplay.features[0].geometry.coordinates[0],
+            assetsToDisplay.features[0].geometry.coordinates[1],
+          ],
+          essential: true,
+        });
+      }
+
+
+
       let assetGeoJson = assetsToDisplay;
       this.map.addSource("random-points-data", {
         type: "geojson",
@@ -221,43 +244,81 @@ class Map extends React.Component {
         type: "symbol",
         layout: {
           // full list of icons here: https://labs.mapbox.com/maki-icons
-          "icon-image": 'custom-marker', // this will put little croissants on our map
-
+          "icon-image": "custom-marker", // this will put little croissants on our map
+          "icon-allow-overlap": true,
         },
       });
 
       this.map.on("click", "random-points-layer", (e) => {
         // this.fetchAssetDetails(e.features[0].properties.id);
-        const popupNode = document.createElement('div');
-        debugger;
+        const popupNode = document.createElement("div");
+        ReactDOM.render(
+          <Popup
+            viewTimelineView={this.viewTimelineView}
+            features={e.features[0].properties}
+          />,
+          popupNode
+        );
 
-        
-   
-            ReactDOM.render(<Popup viewTimelineView={this.viewTimelineView} features={e.features[0].properties}/>, popupNode);
-
-      
         let coordinates = e.features[0].geometry.coordinates.slice();
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-        new mapboxgl.Popup()
+       var popup =  new mapboxgl.Popup()
           .setLngLat(coordinates)
           .setDOMContent(popupNode)
           // .setHTML(description)
           .addTo(this.map);
 
+        this.map.on("mouseenter", "random-points-layer", (e) => {
+          if (e.features.length) {
+            this.map.getCanvas().style.cursor = "pointer";
+          }
+        });
 
-          this.map.on('mouseenter', 'random-points-layer', e => {
-            if (e.features.length) {
-              this.map.getCanvas().style.cursor = 'pointer';
+        this.map.on("mouseleave", "random-points-layer", () => {
+          this.map.getCanvas().style.cursor = "";
+          popup.remove();
+        });
+      });
+
+      this.map.on("mouseenter", "random-points-layer", (e) => {
+
+        // Change the cursor style as a UI indicator.
+            map.getCanvas().style.cursor = 'pointer';
+            
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = e.features[0].properties.description;
+            
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
             }
-          });
 
+            const popupNode = document.createElement("div");
+            ReactDOM.render(
+              <Popup
+                viewTimelineView={this.viewTimelineView}
+                features={e.features[0].properties}
+              />,
+              popupNode
+            );
 
-          this.map.on('mouseleave', 'random-points-layer', () => {
-            this.map.getCanvas().style.cursor = '';
-          });
+            var popup =  new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setDOMContent(popupNode)
+            // .setHTML(description)
+            .addTo(this.map);
+  
+    
+            this.map.on("mouseleave", "random-points-layer", () => {
+              this.map.getCanvas().style.cursor = "";
+              popup.remove();
+            });
+        
       });
 
       this.map.on("moveend", async () => {
@@ -276,15 +337,14 @@ class Map extends React.Component {
     });
 
     this.map.on("move", () => {
-    //   const { lng, lat } = this.map.getCenter();
-
-    //   console.log(`lng:${lng}`)
-    //   console.log(`lat:${lat}`)
-    //   this.setState({
-    //     lng: lng.toFixed(4),
-    //     lat: lat.toFixed(4),
-    //     zoom: this.map.getZoom().toFixed(4),
-    //   });
+      //   const { lng, lat } = this.map.getCenter();
+      //   console.log(`lng:${lng}`)
+      //   console.log(`lat:${lat}`)
+      //   this.setState({
+      //     lng: lng.toFixed(4),
+      //     lat: lat.toFixed(4),
+      //     zoom: this.map.getZoom().toFixed(4),
+      //   });
     });
   };
 

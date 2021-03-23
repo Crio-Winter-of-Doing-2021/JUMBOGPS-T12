@@ -1,5 +1,6 @@
 // import React from 'react';
 import ReactDOM from 'react-dom';
+import styles from './styles.module.css';
 
 // class Dashboard extends React.Component{
 
@@ -107,6 +108,7 @@ export default function Dashboard(props) {
 
   return (
     <div
+      className={styles.dashboard}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       style={style}

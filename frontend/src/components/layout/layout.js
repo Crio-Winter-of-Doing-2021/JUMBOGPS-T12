@@ -4,6 +4,7 @@ import {Slider, InputNumber, Row, Col, DatePicker, Input, Button } from 'antd'
 import Map from '../map/map';
 import { fetchAssets, fetchAssetDetails } from '../../api/apli-client';
 import { connect } from "react-redux";
+import styles from './styles.module.css';
 
 
 const { RangePicker } = DatePicker;
@@ -32,9 +33,8 @@ class Layout extends React.Component{
 
 
 
-      searcAsset = (value)=>{
+    searcAsset = (value)=>{
          this.setState({findAsset:value})
-
       }
 
       sliderOnChangeHandler = (value)=>{
@@ -85,6 +85,13 @@ class Layout extends React.Component{
         this.props.addAssetDetails(assetDetails);
       
      
+      }
+
+      resetBtnHandler = async ()=>{
+        this.setState({findAsset:null})
+        let assetDetails =  await fetchAssets();
+        assetDetails = this.getAllAssetDetails(assetDetails);
+        this.props.addAssetDetails(assetDetails);
       }
 
 
@@ -201,14 +208,23 @@ class Layout extends React.Component{
         const {translate, numberOfAssetsToDisplay, findAsset    } = this.state
         const {assetDetails} = this.props;
         return(
+
+         
             
             <div>
+         
             <Dashboard  onDragMove={handleDragMove}   style={{
-                    transform: `translateX(${translate.x}px) translateY(${translate.y}px)`, position:'absolute', 'z-index':'1', 'background-color':'white', top:'10px', left:'10px'}}>
+                    transform: `translateX(${translate.x}px) translateY(${translate.y}px)`, position:'absolute', 'z-index':'1', 'background-color':'white', top:'10px', left:'10px', padding:'20px'}}>
                     <div>
                     <p>Move this component</p>
-                    <Search placeholder="input search text" onSearch={this.searcAsset} enterButton />
-                    <Button type="primary">Reset</Button>
+                    <Row>
+                      <Col span={20}>
+                    <Search placeholder="input search text" onSearch={this.searcAsset} allowClear={true} enterButton />
+                    </Col>
+                    <Col span={4}>
+                    <Button onClick={this.resetBtnHandler} type="primary">Reset</Button>
+                    </Col>
+                    </Row> 
                     {/* <input onChange={(e)=>setAssetToDisplay(e.target.value)} value={assetToDisplay} placeholder='Asset ID'></input> */}
                     {/* <button onClick={findAssetSubmitHandler}>"Find Asset"</button> */}
                     </div>
