@@ -106,6 +106,7 @@ export default function Dashboard(props) {
     }
   }, []);
 
+  console.log(styles.dashboard);
   return (
     <div
       className={styles.dashboard}
