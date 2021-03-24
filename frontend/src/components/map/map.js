@@ -14,7 +14,7 @@ class Map extends React.Component {
     super(props);
     this.state = {
       lng: 78.486671,
-      lat: 17.385044,
+      lat: 78.385044,
       zoom: 15,
       dispHistoryOfRoute: false,
     };
@@ -230,7 +230,7 @@ class Map extends React.Component {
         });
       }
 
-
+      debugger;
 
       let assetGeoJson = assetsToDisplay;
       this.map.addSource("random-points-data", {
