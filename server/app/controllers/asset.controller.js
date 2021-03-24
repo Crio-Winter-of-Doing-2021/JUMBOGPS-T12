@@ -1,37 +1,48 @@
 const Asset = require('../models/Assets.js'); // Asset
 
+const jwt = require('jsonwebtoken');
+const jwtConfig = require('../../config/jwt.config');
+
 // create a new meme
 exports.create = (req, res) => {
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        const asset = new Asset({
+            id: req.body.id,
+            name: req.body.name,
+            type: req.body.type,
+            route: {
+                src: req.body.src.split(',').map(x => +x),
+                dest: req.body.dest.split(',').map(x => +x),
+                start: new Date(req.body.start),
+                end: new Date(req.body.end)
+            },
+            location: {
+                type: 'Point',
+                coordinates: [{
+                    ts: new Date(req.body.ts),
+                    lat: req.body.lat,
+                    long: req.body.long
+                }]
+            }
+        });
 
+        if (user.type !== 'Admin') throw 'Unauthorized access';
+    
+        // saving a new asset to the database
+        asset.save()
+        .then(data => {
+            res.status(200).send({message: 'Added new asset data'}); // sending back the new entry
+        })
+        .catch(err => {
+            res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
     // create a Asset
-    const asset = new Asset({
-        id: req.body.id,
-        name: req.body.name,
-        type: req.body.type,
-        route: {
-            src: req.body.src,
-            dest: req.body.dest,
-            start: new Date(req.body.start),
-            end: new Date(req.body.end)
-        },
-        location: {
-            type: 'Point',
-            coordinates: [{
-                ts: new Date(req.body.ts),
-                lat: req.body.lat,
-                long: req.body.long
-            }]
-        }
-    });
-
-    // saving a new asset to the database
-    asset.save()
-    .then(data => {
-        res.status(200).send({message: 'Added new asset data'}); // sending back the new entry
-    })
-    .catch(err => {
-        res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
-    });
+    
     // res.send({ message: "ok" });
 };
 
@@ -45,31 +56,46 @@ function getAssetInfo(asset) {
         id: asset.id,
         type: asset.type,
         name: asset.name,
+        src: asset.route.src,
+        dest: asset.route.dest,
         coordinates: getLatestLocation(asset)
     };
 }
 
 // find all assets
 exports.findAll = (req, res) => {
-    Asset.find()
-    .then(assets => {                
-        res.send(assets.map(asset => getAssetInfo(asset)));
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in retrieving Assets'});
-    });
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        Asset.find()
+        .then(assets => {                
+            res.send(assets.map(asset => getAssetInfo(asset)));
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in retrieving Assets'});
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
+    
 };
 
 // find a specific asset with id passed as parameter
 exports.findOne = (req, res) => {       
-    
-    Asset.find({id: req.query.id}) 
-    .then(asset => {
-        res.status(200).send(asset);
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in retrieving Asset'}); // error handling
-    });
+
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        Asset.find({id: req.query.id}) 
+        .then(asset => {
+            res.status(200).send(asset);
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in retrieving Asset'}); // error handling
+        });    
+    } catch (error) {
+        console.log(error);
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
 };
 
 // filter results based on search parameters
