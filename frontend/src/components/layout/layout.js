@@ -1,6 +1,6 @@
 import React from 'react';
 import Dashboard from '../dashboaord/dashboard';
-import {Slider, InputNumber, Row, Col, DatePicker, Input, Button } from 'antd'
+import {Slider, InputNumber, Row, Col, DatePicker, Input, Button, Select } from 'antd'
 import Map from '../map/map';
 import { fetchAssets, fetchAssetDetails } from '../../api/apli-client';
 import { connect } from "react-redux";
@@ -9,6 +9,7 @@ import styles from './styles.module.css';
 
 const { RangePicker } = DatePicker;
 const {Search} = Input;
+const {Option} = Select;
 
 
 class Layout extends React.Component{
@@ -23,7 +24,8 @@ class Layout extends React.Component{
           y: 0
         },
         findAsset:null,
-        dateFilter:null
+        dateFilter:null, 
+        assetTypes:['Delivery Truck']
 
   }
 
@@ -34,6 +36,7 @@ class Layout extends React.Component{
 
 
     searcAsset = (value)=>{
+      debugger;
          this.setState({findAsset:value})
       }
 
@@ -213,18 +216,27 @@ class Layout extends React.Component{
             
             <div>
          
-            <Dashboard  onDragMove={handleDragMove}   style={{
-                    transform: `translateX(${translate.x}px) translateY(${translate.y}px)`, position:'absolute', 'z-index':'1', 'background-color':'white', top:'10px', left:'10px', padding:'20px'}}>
+                      <Dashboard  onDragMove={handleDragMove} className={styles['dashboard']}   style={{
+                    transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
                     <div>
                     <p>Move this component</p>
+                    <div  style={{'margin-bottom':'10px'}}>
                     <Row>
                       <Col span={20}>
-                    <Search placeholder="input search text" onSearch={this.searcAsset} allowClear={true} enterButton />
+                    {/* <Search placeholder="input search text" onSearch={this.searcAsset} allowClear={true} enterButton /> */}
+
+                    <Input.Group compact>
+                 
+                    <Search placeholder="input search text" onSearch={this.searcAsset} allowClear={true} enterButton /> 
+                    {/* <Search placeholder="input search text" onSearch={this.searcAsset} style={{ width: 200 }} /> */}
+
+                  </Input.Group>
                     </Col>
                     <Col span={4}>
                     <Button onClick={this.resetBtnHandler} type="primary">Reset</Button>
                     </Col>
                     </Row> 
+                    </div>
                     {/* <input onChange={(e)=>setAssetToDisplay(e.target.value)} value={assetToDisplay} placeholder='Asset ID'></input> */}
                     {/* <button onClick={findAssetSubmitHandler}>"Find Asset"</button> */}
                     </div>
@@ -245,8 +257,9 @@ class Layout extends React.Component{
             onChange={this.sliderOnChangeHandler}
           />
             </Dashboard>
-
+            <div style={{width:'95%', float:'right'}}>
             <Map viewTimelineView ={this.viewTimelineView} ref={this.mapRef} assetsToDisplay={assetDetails} assetToDisplay={findAsset} numberOfAssetsToDisplay={numberOfAssetsToDisplay}/>
+              </div>
             </div>
 
         )
