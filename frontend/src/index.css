@@ -23,4 +23,5 @@ code {
   box-sizing: content-box;
   text-align: center;
   border-radius: 4px;
+  border-radius: 10px;
 }
