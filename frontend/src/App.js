@@ -7,6 +7,7 @@ import RangeSlider from './components/rangeSlider/rangeSlider';
 import 'antd/dist/antd.css'; 
 import Layout from './components/layout/layout';
 import Login from './components/login/login';
+import {Sidebar} from './components/navigation/sidebar/sidebar';
 
 
 import { DatePicker } from 'antd';
@@ -84,7 +85,7 @@ function App() {
       </Dashboard>
       
       <Map assetToDisplay={findAsset} numberOfAssetsToDisplay={parentVal}/> */}
-        
+      <Sidebar /> 
       <Layout />
     </div>
   );
