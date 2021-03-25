@@ -61,12 +61,12 @@ class Map extends React.Component {
       //     assetGeoJson = this.formatToGeoJson(results);
 
       const { assetsToDisplay } = this.props;
-
+debugger;
       if (assetsToDisplay) {
         if (this.map.getSource("random-points-data")) {
           this.map.getSource("random-points-data").setData(assetsToDisplay);
         }
-        if (assetsToDisplay.features.length > 0) {
+        if (assetsToDisplay.features && assetsToDisplay.features.length > 0) {
           this.map.flyTo({
             center: [
               assetsToDisplay.features[0].geometry.coordinates[0],
@@ -219,6 +219,7 @@ class Map extends React.Component {
         }
       );
         debugger;
+        console.log(assetsToDisplay);
       if(assetsToDisplay.features && assetsToDisplay.features.length){
 
         map.flyTo({

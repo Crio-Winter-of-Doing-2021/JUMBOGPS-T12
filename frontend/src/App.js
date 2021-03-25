@@ -1,6 +1,7 @@
 
 import './App.css';
 import {useMemo, useCallback, useState} from 'react'
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import Map from './components/map/map';
 import Dashboard from './components/dashboaord/dashboard'
 import RangeSlider from './components/rangeSlider/rangeSlider';
@@ -8,6 +9,12 @@ import 'antd/dist/antd.css';
 import Layout from './components/layout/layout';
 import Login from './components/login/login';
 import {Sidebar} from './components/navigation/sidebar/sidebar';
+import Home from './components/home/home';
+import Register from './components/Register/register';
+import Portal from './components/portal/portal.component';
+import AddAsset from './components/createAsset/createAsset';
+import Navbar from './components/navigation/navbar/navbar';
+
 
 
 import { DatePicker } from 'antd';
@@ -71,6 +78,21 @@ function App() {
 
   return (
     <div className="App">
+
+<Navbar />
+         <Sidebar /> 
+      <Switch>
+              <Route exact path="/" component={Home} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
+              <Route exact path="/portal" component={Portal} />
+              <Route exact path="/add-asset" component={AddAsset} />
+              <Route exact path="/map" component={Layout} />
+
+      </Switch>
+         
+         
+
       {/* <Dashboard  onDragMove={handleDragMove}   style={{
               transform: `translateX(${translate.x}px) translateY(${translate.y}px)`, position:'absolute', 'z-index':'1', 'background-color':'white', top:'10px', left:'10px'}}>
               <div>
@@ -84,9 +106,11 @@ function App() {
 
       </Dashboard>
       
-      <Map assetToDisplay={findAsset} numberOfAssetsToDisplay={parentVal}/> */}
-      <Sidebar /> 
-      <Layout />
+      <Map assetToDisplay={findAsset} numberOfAssetsToDisplay={parentVal}/> */}            
+
+
+     
+      {/* <Layout /> */}
     </div>
   );
 }

@@ -51,7 +51,12 @@ class Layout extends React.Component{
         results = results.data.filter(
           (eachAsset) => eachAsset.id === findAsset
         );
-        let assetGeoJson = this.formatToGeoJson(results);
+        console.log("formatToGeoJsonV2");
+        let assetGeoJson = this.formatToGeoJsonV2(results);
+        //Uncomment below file for legacy geoJson  function
+        // let assetGeoJson = this.formatToGeoJson(results);
+        
+
         this.props.addAssetDetails(assetGeoJson);
         
        }
@@ -83,7 +88,9 @@ class Layout extends React.Component{
       };
 
       async componentDidMount(){
+        debugger;
         let assetDetails =  await fetchAssets();
+        debugger;
         assetDetails = this.getAllAssetDetails(assetDetails);
         this.props.addAssetDetails(assetDetails);
       
@@ -144,6 +151,25 @@ class Layout extends React.Component{
 
         }
 
+      }
+
+      formatToGeoJsonV2 = (assetDetails)=>{
+
+        let assetgeoJsonLine =     {
+          'type': 'geojson',
+          'data': {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+          'type': 'LineString',
+          'coordinates': assetDetails[0].location.coordinates.map((coordinates, id)=>(
+            [coordinates.long, coordinates.lat]
+          ))
+          }
+          }
+          }
+          console.log(assetgeoJsonLine)
+        return assetgeoJsonLine;
       }
 
     formatToGeoJson = (assetDetails) => {
