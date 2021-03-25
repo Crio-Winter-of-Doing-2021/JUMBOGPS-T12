@@ -7,14 +7,15 @@ const userController = require('../controllers/user.controller.js');
 
 // get users data
 router.get('/', async (req, res) => {
-    if (req.query.id) {
-        userController.findOne(req, res);
-    } else {
-        userController.findAll(req, res);
-    }    
+    // if (req.query.id) {
+    //     userController.findOne(req, res);
+    // } else {
+    //     userController.findAll(req, res);
+    // }    
+    userController.findOne(req, res);
 });
 
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     userController.authenticate(req, res);
 });
 

@@ -2,6 +2,9 @@ const User = require('../models/Users.js'); // User
 
 const bcrypt = require('bcryptjs');
 
+const jwt = require('jsonwebtoken');
+const jwtConfig = require('../../config/jwt.config');
+
 function hashPassword(password) {
     return bcrypt.hashSync(password);
 }
@@ -52,7 +55,11 @@ exports.authenticate = (req, res) => {
     User.findOne({id: req.body.id})
     .then(user => {                
         if (checkPassword(user.password, req.body.password)) {
-            res.status(200).send({ token: user.id+'token'});
+            const token = jwt.sign({ 
+                id: user.id,
+                type: user.type
+            }, jwtConfig.JWT_SECRET);
+            res.status(200).send({ token: token});
         } else {
             res.status(401).send({ message: 'Invalid password'});
         }
@@ -63,17 +70,22 @@ exports.authenticate = (req, res) => {
 };
 
 // find a specific user with id passed as parameter
-exports.findOne = (req, res) => {    
-    User.findOne({id: req.query.id}) 
-    .then(user => {
-        
-        res.status(200).send(getUserInfo(user));
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in retrieving User'}); // error handling
-    });
+exports.findOne = (req, res) => {
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        User.findOne({ id: user.id, type: user.type }) 
+        .then(user => {
+            
+            res.status(200).send(getUserInfo(user));
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in retrieving User'}); // error handling
+        });
+    } catch (error) {
+        res.status(401).send({message: 'Unauthorized access'}); // error handling
+    }
+    
 };
-
 
 // find a specific user and remove it from the database
 exports.deleteOne = (req, res) => {

@@ -42,11 +42,11 @@ const AssetSchema = mongoose.Schema({
     },
     route: {
         src: {
-            type: String,
+            type: [Number],
             required: true
         },
         dest: {
-            type: String,
+            type: [Number],
             required: true
         },
         start: {
