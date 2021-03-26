@@ -1,16 +1,27 @@
 import React from 'react';
 import {Link, useRouteMatch} from 'react-router-dom';
-
+import { withRouter } from "react-router-dom";
 import {
-  UnorderedListOutlined
+  UnorderedListOutlined, LogoutOutlined
 } from '@ant-design/icons';
+
 
 
 import {config} from './config';
 
 import styles from './styles.module.css';
+var socket;
+function Sidebar(props) {
 
-function Sidebar() {
+  const handleLogout = () => {
+
+     
+    props.history.push('/login')
+    localStorage.removeItem('token');
+    
+}
+
+
 
   return (
     <nav className={styles['nav']}>
@@ -27,7 +38,7 @@ function Sidebar() {
             </li>
           ))}
       </ul>
-   
+          <LogoutOutlined onClick={handleLogout} style={{color:`white`, fontSize:'20px'}} className={styles['logout-icon']} />  
     </nav>
   );
 }
@@ -52,4 +63,4 @@ function NavLink({to, img, activeImg, content, ...props}) {
 
 
 
-export {Sidebar};
+export default withRouter(Sidebar)

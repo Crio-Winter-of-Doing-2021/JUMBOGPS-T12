@@ -5,7 +5,7 @@ import Map from '../map/map';
 import { fetchAssets, fetchAssetDetails } from '../../api/apli-client';
 import { connect } from "react-redux";
 import styles from './styles.module.css';
-
+import {socket} from '../home/home';
 
 const { RangePicker } = DatePicker;
 const {Search} = Input;
@@ -34,6 +34,8 @@ class Layout extends React.Component{
 
 
 
+   
+
 
     searcAsset = (value)=>{
       debugger;
@@ -47,14 +49,16 @@ class Layout extends React.Component{
      
       viewTimelineView = async (findAsset)=>{
 
+        socket.emit('timeline-view', JSON.stringify({socketID:socket.id, assetID:findAsset}));
+
         let results =  await fetchAssetDetails(findAsset);
         results = results.data.filter(
           (eachAsset) => eachAsset.id === findAsset
         );
         console.log("formatToGeoJsonV2");
-        let assetGeoJson = this.formatToGeoJsonV2(results);
+        // let assetGeoJson = this.formatToGeoJsonV2(results);
         //Uncomment below file for legacy geoJson  function
-        // let assetGeoJson = this.formatToGeoJson(results);
+        let assetGeoJson = this.formatToGeoJson(results);
         
 
         this.props.addAssetDetails(assetGeoJson);
@@ -88,6 +92,17 @@ class Layout extends React.Component{
       };
 
       async componentDidMount(){
+       
+      socket.on('broadcast',function(data) {
+          console.log(data);
+       });
+
+       socket.on('updated-location-details', (res)=>{
+        let assetGeoJson = this.formatToGeoJson(res.data);
+        console.log("assetGEOJSON ddebug");
+        console.log(assetGeoJson);
+        this.props.addAssetDetails(assetGeoJson);
+       })
         debugger;
         let assetDetails =  await fetchAssets();
         debugger;
@@ -106,6 +121,7 @@ class Layout extends React.Component{
 
 
      async componentDidUpdate(prevProps, prevState){
+       console.log(localStorage.getItem('token'));
         let assetGeoJson = null;
         let results = null;
         const {assetDetails} = this.props
@@ -305,4 +321,5 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

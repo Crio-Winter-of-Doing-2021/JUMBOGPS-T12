@@ -8,8 +8,8 @@ import RangeSlider from './components/rangeSlider/rangeSlider';
 import 'antd/dist/antd.css'; 
 import Layout from './components/layout/layout';
 import Login from './components/login/login';
-import {Sidebar} from './components/navigation/sidebar/sidebar';
-import Home from './components/home/home';
+import Sidebar from './components/navigation/sidebar/sidebar';
+import {Home} from './components/home/home';
 import Register from './components/Register/register';
 import Portal from './components/portal/portal.component';
 import AddAsset from './components/createAsset/createAsset';
@@ -80,7 +80,7 @@ function App() {
     <div className="App">
 
 <Navbar />
-         <Sidebar /> 
+<Sidebar /> 
       <Switch>
               <Route exact path="/" component={Home} />
               <Route exact path="/login" component={Login} />

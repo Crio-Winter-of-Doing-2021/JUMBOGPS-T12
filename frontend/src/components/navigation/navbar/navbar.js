@@ -53,7 +53,7 @@ class Navigation extends Component {
                 </h1>
               )}
             </div>
-
+                
             <div className={styles['right-container']}>
             <LogoutOutlined onClick={this.handleLogout} style={{color:`white`, fontSize:'20px'}} />
         

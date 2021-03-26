@@ -33,3 +33,11 @@
   .nav-link-content {
     margin-left: 10px;
   }
+
+  .logout-icon {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
