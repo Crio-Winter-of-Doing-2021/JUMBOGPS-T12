@@ -17,6 +17,7 @@ function checkPassword(input, password) {
 exports.create = (req, res) => {
 
     // register an user    
+    
     const user = new User({
         id: req.body.id,
         name: req.body.name,

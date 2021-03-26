@@ -2,6 +2,9 @@ const Asset = require('../models/Assets.js'); // Asset
 
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../../config/jwt.config');
+const app=require('../../server');
+const io=app.getSocketIo();
+const clients = app.getAllclients
 
 // create a new meme
 exports.create = (req, res) => {
@@ -32,7 +35,8 @@ exports.create = (req, res) => {
         // saving a new asset to the database
         asset.save()
         .then(data => {
-            res.status(200).send({message: 'Added new asset data'}); // sending back the new entry
+            io.sockets.emit('broadcast',{ description: 'Sample message to all connected!'});
+            res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
         })
         .catch(err => {
             res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
@@ -42,6 +46,7 @@ exports.create = (req, res) => {
         res.status(401).send({ message: 'Unauthorized access' });
     }
     // create a Asset
+
     
     // res.send({ message: "ok" });
 };
@@ -67,7 +72,9 @@ exports.findAll = (req, res) => {
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
         Asset.find()
-        .then(assets => {                
+        .then(assets => {     
+            console.log("send all assets API")
+            io.sockets.emit('broadcast',{ description: 'Sample message to all connected!'});           
             res.send(assets.map(asset => getAssetInfo(asset)));
         })
         .catch(err => {
@@ -77,7 +84,7 @@ exports.findAll = (req, res) => {
         console.log(error);
         res.status(401).send({ message: 'Unauthorized access' });
     }
-    
+ 
 };
 
 // find a specific asset with id passed as parameter
@@ -173,14 +180,37 @@ exports.deleteOne = (req, res) => {
 // find a specific asset and update it 
 exports.updateOne = (req, res) => {
     const reqId = req.query.id; // required id
+    // io.sockets.emit('broadcast',{ description: 'Sample message to all connected!'});
 
     Asset.updateOne({id: reqId}, {$push: {'location.coordinates': [
         {ts: new Date(req.body.ts), lat: +req.body.lat, long: +req.body.long}
     ]}})
-    .then(transaction => {        
+    .then(transaction => {
+        console.log(clients);
+        Object.keys(clients).forEach((client)=>{
+            console.log(reqId);
+            if(clients[client].timelineView){
+                console.log("came here")
+                if(clients[client].assetID ===reqId){
+
+                    Asset.find({id: reqId}) 
+                    .then(asset => {
+                        console.log("here");
+                        io.to(client).emit('updated-location-details', {data:asset})
+                    })
+                    .catch(err => {
+                       console.log(err);
+                    });    
+    
+
+                }
+
+            }
+        })
         res.status(200).send({message: 'Successfully updated Asset with id '+ reqId}); // update process info
     })
     .catch(err => {        
         res.status(404).send({message: err.message || 'Some error in updating Asset'}); // error handling
     });
 };
+

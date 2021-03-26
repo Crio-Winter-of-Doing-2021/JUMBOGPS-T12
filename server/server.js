@@ -26,6 +26,52 @@ mongoose.connect(
     () => console.log('Connected to local database Assets')
 );  
 
+const clients = {}
+/**
+ * @description Connection to socket.io
+ */
+ var http = require('http').createServer(app);
+ var io = require('socket.io')(http,{
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+ });
+ io.on('connection', (socket)=>{
+  console.log('a user connected');
+
+  if(!clients[socket.id]){
+    clients[socket.id] = {
+      timelineView:false
+    }
+  }
+
+
+
+
+socket.on('disconnect', ()=>{
+    delete clients[socket.id];
+    console.log(clients)
+  })
+
+  socket.on('timeline-view', (data)=>{
+
+    data = JSON.parse(data);
+    clients[data.socketID].timelineView = true
+    clients[data.socketID].assetID = data.assetID
+
+
+   })
+ })
+
+ function getSocketIo(){
+  return io;
+}
+
+module.exports.getAllclients = clients;
+module.exports.getSocketIo=getSocketIo
+
+
 // base url get request
 const assetApiRoutes = require('./app/routes/assets.api');
 app.use('/api/assets', assetApiRoutes);
@@ -37,7 +83,7 @@ app.use('/api/users', userApiRoutes);
 app.use("/api/swagger-ui", swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
 
 // starting server on port 8081
-const server = app.listen(8081, () => {
+const server = http.listen(3030, () => {
     var hostIP = server.address().address;
     var hostPort = server.address().port;
 
