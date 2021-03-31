@@ -16,22 +16,30 @@ function checkPassword(input, password) {
 // create a new user
 exports.create = (req, res) => {
 
-    // register an user    
-    const user = new User({
-        id: req.body.id,
-        name: req.body.name,
-        type: req.body.type,
-        password: hashPassword(req.body.password)
-    });
+    try {
+        // verifying if current user is admin or not
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        if (user.type !== 'Admin') throw 'Unauthorized access';
 
-    // saving a new user to the database
-    user.save()
-    .then(data => {
-        res.status(200).send({message: 'Added new user data'}); // sending back the new entry
-    })
-    .catch(err => {
-        res.status(500).send({message: err.message || 'Some error in creating new user data'}); // error handling
-    });
+        const newUser = new User({
+            id: req.body.id,
+            name: req.body.name,
+            type: req.body.type,
+            password: hashPassword(req.body.password)
+        });
+    
+        // saving a new user to the database
+        newUser.save()
+        .then(data => {
+            res.status(200).send({message: 'Added new user data'}); // sending back the new entry
+        })
+        .catch(err => {
+            res.status(500).send({message: err.message || 'Some error in creating new user data'}); // error handling
+        });
+        
+    } catch (error) {        
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
 };
 
 function getUserInfo(user) {
@@ -42,13 +50,25 @@ function getUserInfo(user) {
 
 // find all users
 exports.findAll = (req, res) => {
-    User.find()
-    .then(users => {                
-        res.send(users.map(user => getUserInfo(user)));
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in retrieving Users'});
-    });
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        User.findOne({ id: user.id, type: user.type }) 
+        .then(user => {
+            User.find()
+            .then(users => {                
+                res.send(users.map(user => getUserInfo(user)));
+            })
+            .catch(err => {
+                res.status(404).send({message: err.message || 'Some error in retrieving Users'});
+            });
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in retrieving User'}); // error handling
+        });
+    } catch (error) {
+        res.status(401).send({message: 'Unauthorized access'}); // error handling
+    }
+    
 };
 
 exports.authenticate = (req, res) => {
@@ -89,26 +109,45 @@ exports.findOne = (req, res) => {
 
 // find a specific user and remove it from the database
 exports.deleteOne = (req, res) => {
-    const reqId = req.query.id; // required reqId
+    try {
+        // verifying if current user is admin or not
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        if (user.type !== 'Admin') throw 'Unauthorized access';
 
-    User.deleteOne({id: reqId})
-    .then(() => {
-        res.status(200).send({message: 'User with id ' + reqId + ' was deleted successfully'}); // success message
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in deleting User'}); // error handling
-    });
+        const reqId = req.query.id; // required reqId
+
+        User.deleteOne({id: reqId})
+        .then(() => {
+            res.status(200).send({message: 'User with id ' + reqId + ' was deleted successfully'}); // success message
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in deleting User'}); // error handling
+        });        
+    } catch (error) {        
+        res.status(401).send({ message: 'Unauthorized access' });
+    }    
 };
 
 // find a specific user and update it 
 exports.updateOne = (req, res) => {
-    const reqId = req.query.id; // required id
 
-    User.updateOne({id: reqId}, {$set: {type: req.body.type}})
-    .then(transaction => {        
-        res.status(200).send({message: 'Successfully updated User with id '+ reqId}); // update process info
-    })
-    .catch(err => {        
-        res.status(404).send({message: err.message || 'Some error in updating User'}); // error handling
-    });
+    try {
+        // verifying if current user is admin or not
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        if (user.type !== 'Admin') throw 'Unauthorized access';
+
+        const reqId = req.query.id; // required id
+
+        User.updateOne({id: reqId}, {$set: {type: req.body.type}})
+        .then(transaction => {        
+            res.status(200).send({message: 'Successfully updated User with id '+ reqId}); // update process info
+        })
+        .catch(err => {        
+            res.status(404).send({message: err.message || 'Some error in updating User'}); // error handling
+        });
+        
+    } catch (error) {        
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
+    
 };
