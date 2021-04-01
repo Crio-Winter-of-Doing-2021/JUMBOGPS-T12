@@ -34,7 +34,7 @@ exports.create = (req, res) => {
     
         // saving a new asset to the database
         asset.save()
-        .then(data => {
+        .then(data => { 
             io.sockets.emit('broadcast',{ description: 'Sample message to all connected!'});
             res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
         })
@@ -94,6 +94,7 @@ exports.findOne = (req, res) => {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
         Asset.find({id: req.query.id}) 
         .then(asset => {
+            
             res.status(200).send(asset);
         })
         .catch(err => {
