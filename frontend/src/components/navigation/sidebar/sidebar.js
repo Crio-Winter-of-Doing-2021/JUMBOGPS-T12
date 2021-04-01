@@ -4,13 +4,13 @@ import { withRouter } from "react-router-dom";
 import {
   UnorderedListOutlined, LogoutOutlined
 } from '@ant-design/icons';
-
-
+import { message } from "antd";
+import {connect} from 'react-redux'
+import {compose} from 'redux'
 
 import {config} from './config';
 
 import styles from './styles.module.css';
-var socket;
 function Sidebar(props) {
 
   const handleLogout = () => {
@@ -18,10 +18,13 @@ function Sidebar(props) {
      
     props.history.push('/login')
     localStorage.removeItem('token');
+    debugger;
+    props.storeLoginUser(null);
+    message.success('User logged out', 5);
     
 }
 
-
+  debugger;
 
   return (
     <nav className={styles['nav']}>
@@ -29,16 +32,19 @@ function Sidebar(props) {
         {config
           .map(navItem => (
             <li key={`${navItem.name} ${navItem.route}`}>
-              <NavLink
+   
+
+              <NavLink 
                 to={navItem.route}
                 img={navItem.img}
                 activeImg={navItem.activeImg}             
-              ><UnorderedListOutlined style={{color:`white`, fontSize:'32px'}}/> </NavLink>
+              > <UnorderedListOutlined  style={{color:`white`, fontSize:'32px', 'margin-top':'50px'}}/> </NavLink> 
         
             </li>
           ))}
       </ul>
-          <LogoutOutlined onClick={handleLogout} style={{color:`white`, fontSize:'20px'}} className={styles['logout-icon']} />  
+      {      props.username ?
+          <LogoutOutlined onClick={handleLogout} style={{color:`white`, fontSize:'20px'}} className={styles['logout-icon']} />  :''}
     </nav>
   );
 }
@@ -61,6 +67,25 @@ function NavLink({to, img, activeImg, content, ...props}) {
   );
 }
 
+function mapStateToProps(state) {
+  return {
+    username: state.username,
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    storeLoginUser: (payload) => {
+      dispatch({ type: "Store_USER_NAME", payload });
+    },
+  };
+};
 
 
-export default withRouter(Sidebar)
+
+export default compose(
+  withRouter,
+  connect(mapStateToProps, mapDispatchToProps)
+)(Sidebar);
+
+// export default withRouter(Sidebar)

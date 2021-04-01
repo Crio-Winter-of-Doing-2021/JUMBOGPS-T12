@@ -5,12 +5,9 @@ import { withRouter } from "react-router-dom";
 import PropTypes from 'prop-types';
 import styles from './styles.module.css';
 
-import {
-    LogoutOutlined
-  } from '@ant-design/icons';
+import {connect} from 'react-redux'
+import {compose} from 'redux'
   
-
-import { fetchUserDetails } from '../../../api/apli-client';
 
 class Navigation extends Component {
     constructor(props) {
@@ -19,17 +16,17 @@ class Navigation extends Component {
     }    
 
     componentDidMount() {               
-        fetchUserDetails()
-        .then(res => {             
-                this.setState({
-                    user: res.data
-                });
-            }
-        )
-        .catch(error => {
-                console.log(error);
-            }
-        );
+        // fetchUserDetails()
+        // .then(res => {             
+        //         this.setState({
+        //             user: res.data
+        //         });
+        //     }
+        // )
+        // .catch(error => {
+        //         console.log(error);
+        //     }
+        // );
     }
 
     handleLogout = () => {
@@ -41,12 +38,13 @@ class Navigation extends Component {
     }
 
     render() {
+      debugger;
         return (
 
             <header className={styles['header']}>
             <div className={styles['left-container']}>
         
-              <div className={styles['text-big']}>Dashboard</div>
+              <div className={styles['text-big']}>Asset Tracking Portal</div>
               {this.props.heading && (
                 <h1 className={`${styles['text-big']} ${styles['heading']}`}>
                   {this.props.heading}
@@ -55,54 +53,32 @@ class Navigation extends Component {
             </div>
                 
             <div className={styles['right-container']}>
-            <LogoutOutlined onClick={this.handleLogout} style={{color:`white`, fontSize:'20px'}} />
+              {this.props.username ? <div styles={{color:'white'}}><b>{`Logged in user : ${this.props.username}`}</b></div>:'' }
+           
         
         {this.props.heading && (
           <h1 className={`${styles['text-big']} ${styles['heading']}`}>
-            
+             
           </h1>
           
         )}
       </div>
       
           </header>
-            // <nav className="navbar navbar-expand navbar-light fixed-top">
-            //     <div className="container">
-            //     <Link className="navbar-brand" to={"/"}>Home</Link>
-            //     <div className="collapse navbar-collapse">
-            //         <ul className="navbar-nav ml-auto">
-            //         {
-            //             !this.state.user &&
-            //             <li className="nav-item">
-            //             <Link className="nav-link" to={"/login"}>Login</Link>
-            //             </li>
-            //         }
-            //         <li className="nav-item">
-            //             <Link className="nav-link" to={"/register"}>Signup</Link>
-            //         </li>
-            //         <li className="nav-item">
-            //             <Link className="nav-link" to={"/portal"}>Asset Tracking Portal</Link>
-            //         </li>
-            //         {
-            //             this.state.user && 
-            //             <li className="nav-item">
-            //             <Link className="nav-link" to={"/"}>{this.state.user.name}</Link>
-            //             </li>                         
-            //         }
-            //         {
-            //             this.state.user && 
-            //             <li className="nav-item">
-            //             <Link className="nav-link" onClick={this.handleLogout}>Logout</Link>
-            //             </li>                         
-            //         }
-            //         </ul>
-            //     </div>
-            //     </div>
-            // </nav>
         );
     }
 }
 Navigation.propTypes = {
     heading: PropTypes.string,
   };
-export default withRouter(Navigation);
+
+  function mapStateToProps(state) {
+    return {
+      username: state.username,
+    };
+  }
+// export default withRouter(Navigation);
+export default compose(
+  withRouter,
+  connect(mapStateToProps, null)
+)(Navigation);

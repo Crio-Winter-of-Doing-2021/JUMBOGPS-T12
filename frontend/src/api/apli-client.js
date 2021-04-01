@@ -12,13 +12,16 @@ export const fetchAssets =  ()=>{
 
 export const fetchAssetDetails = (id)=>{
     let token = localStorage.getItem('token') || "";
+
     const results  =  axios.get(`api/assets?id=${id}`, {headers:{
-        token: token
-    }})
+            token: token
+        }})  
+  
     return  results;
 }
 
 export const fetchUserDetails = () => {
+    debugger;
     return axios.get('/users/');
 };
 

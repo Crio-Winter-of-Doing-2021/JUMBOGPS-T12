@@ -6,5 +6,8 @@
           top:10px; 
           left:10px; 
           padding:20px;
-          margin-left:5%
+          margin-left:5%;
+          margin-top: 5%;
+          box-shadow: 0 8px 6px -6px black;
+          border-radius: 10px;
     }

@@ -13,9 +13,9 @@ class Map extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lng: 78.486671,
-      lat: 78.385044,
-      zoom: 15,
+      lng: 78.333019,
+      lat: 17.49593,
+      zoom: 18,
       dispHistoryOfRoute: false,
     };
   }
@@ -60,8 +60,7 @@ class Map extends React.Component {
 
       //     assetGeoJson = this.formatToGeoJson(results);
 
-      const { assetsToDisplay } = this.props;
-debugger;
+      const { assetsToDisplay, geoJSONLine } = this.props;
       if (assetsToDisplay) {
         if (this.map.getSource("random-points-data")) {
           this.map.getSource("random-points-data").setData(assetsToDisplay);
@@ -75,14 +74,37 @@ debugger;
             essential: true,
           });
         }
+        debugger;
+        if (geoJSONLine && geoJSONLine.data.geometry.coordinates.length > 0) {
+          if (!this.map.getSource("route")) {
+            this.map.addSource("route", {
+              ...geoJSONLine,
+            });
+            this.map.addLayer({
+              id: "route",
+              type: "line",
+              source: "route",
+              layout: {
+                "line-join": "round",
+                "line-cap": "round",
+              },
+              paint: {
+                "line-color": "#888",
+                "line-width": 8,
+              },
+            });
+          } else {
+            this.map.getSource("route").setData("route", {
+              ...geoJSONLine,
+            });
+          }
+        } else {
+          if (this.map.getSource("route")) {
+            this.map.removeLayer("route");
+            this.map.removeSource("route");
+          }
+        }
       }
-
-      // } else if(this.props.assetToDisplay===""){
-
-      //   let assetGeoJson = await this.getAllAssetDetails();
-
-      //   this.map.getSource("random-points-data").setData(assetGeoJson);
-      // }
     }
   }
 
@@ -218,10 +240,9 @@ debugger;
           map.addImage("custom-marker", image);
         }
       );
-        debugger;
-        console.log(assetsToDisplay);
-      if(assetsToDisplay.features && assetsToDisplay.features.length){
-
+      debugger;
+      console.log(assetsToDisplay);
+      if (assetsToDisplay.features && assetsToDisplay.features.length) {
         map.flyTo({
           center: [
             assetsToDisplay.features[0].geometry.coordinates[0],
@@ -266,7 +287,7 @@ debugger;
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-       var popup =  new mapboxgl.Popup()
+        var popup = new mapboxgl.Popup()
           .setLngLat(coordinates)
           .setDOMContent(popupNode)
           // .setHTML(description)
@@ -285,41 +306,38 @@ debugger;
       });
 
       this.map.on("mouseenter", "random-points-layer", (e) => {
-
         // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = 'pointer';
-            
-            var coordinates = e.features[0].geometry.coordinates.slice();
-            var description = e.features[0].properties.description;
-            
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
+        map.getCanvas().style.cursor = "pointer";
 
-            const popupNode = document.createElement("div");
-            ReactDOM.render(
-              <Popup
-                viewTimelineView={this.viewTimelineView}
-                features={e.features[0].properties}
-              />,
-              popupNode
-            );
+        var coordinates = e.features[0].geometry.coordinates.slice();
+        var description = e.features[0].properties.description;
 
-            var popup =  new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setDOMContent(popupNode)
-            // .setHTML(description)
-            .addTo(this.map);
-  
-    
-            this.map.on("mouseleave", "random-points-layer", () => {
-              this.map.getCanvas().style.cursor = "";
-              popup.remove();
-            });
-        
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        const popupNode = document.createElement("div");
+        ReactDOM.render(
+          <Popup
+            viewTimelineView={this.viewTimelineView}
+            features={e.features[0].properties}
+          />,
+          popupNode
+        );
+
+        var popup = new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setDOMContent(popupNode)
+          // .setHTML(description)
+          .addTo(this.map);
+
+        this.map.on("mouseleave", "random-points-layer", () => {
+          this.map.getCanvas().style.cursor = "";
+          popup.remove();
+        });
       });
 
       this.map.on("moveend", async () => {
@@ -367,7 +385,7 @@ debugger;
         <div
           ref={(el) => (this.mapContainer = el)}
           style={{ width: "100%", height: "100vh" }}
-          className="absolute top right left bottom"
+          className="absolute top right left bottom map-component"
         />
       </div>
     );

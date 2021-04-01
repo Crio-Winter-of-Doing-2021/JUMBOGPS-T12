@@ -1,6 +1,6 @@
 import React from 'react';
 import Dashboard from '../dashboaord/dashboard';
-import {Slider, InputNumber, Row, Col, DatePicker, Input, Button, Select } from 'antd'
+import {Slider, InputNumber, Row, Col, DatePicker, Input, Button, Select, message } from 'antd'
 import Map from '../map/map';
 import { fetchAssets, fetchAssetDetails } from '../../api/apli-client';
 import { connect } from "react-redux";
@@ -14,6 +14,23 @@ const {Option} = Select;
 
 class Layout extends React.Component{
 
+
+    /**
+   * @class Layout component is a higher order component handling map and dashboard
+   *
+   * Contains the following fields
+   *  @property {React.RefObject} mapRef
+   *  Reference to Map component (to trigger certain methods within the Map component)
+   * @property {numberOfAssetsToDisplay} state.numberOfAssetsToDisplay
+   *    Configurable value based on number of assets to display to user at once
+   * @property {findAsset} state.findAsset
+   *    Find one asset from the map
+   * @property {dateFilter} state.dateFilter
+   *    Find asset between specific dates
+   * @property {geoJSONLine} state.geoJSONLine
+   *    geoJSON to display line on history of assets
+   */
+
   constructor(){
     super();
     this.mapRef = React.createRef();
@@ -25,20 +42,51 @@ class Layout extends React.Component{
         },
         findAsset:null,
         dateFilter:null, 
-        assetTypes:['Delivery Truck']
+        assetTypes:['Delivery Truck'],
+        geoJSONLine:null
 
   }
 
 
   }
 
+  /**
+   *
+   * @param {object} assetDetails
+   * @description Takes all asset details in regualr object and formats it to geoJSON 
+   * @returns geoJSONLine
+   */
 
+    formatToGeoJSONLine = (assetDetails)=>{
 
-   
+      debugger;
+      
+      let locations = assetDetails[0].location.coordinates.map((location)=>{
+        return [location.long, location.lat]
+      })
+    const geoJSONLine =   {
+        'type': 'geojson',
+        'data': {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+        'type': 'LineString',
+        'coordinates': locations
+        }
+        }
+        }
+
+return geoJSONLine;
+    }
+
+      /**
+   *
+   * @param {String} value
+   * @description Store the search asset value to a state
+   */
 
 
     searcAsset = (value)=>{
-      debugger;
          this.setState({findAsset:value})
       }
 
@@ -52,16 +100,31 @@ class Layout extends React.Component{
         socket.emit('timeline-view', JSON.stringify({socketID:socket.id, assetID:findAsset}));
 
         let results =  await fetchAssetDetails(findAsset);
-        results = results.data.filter(
-          (eachAsset) => eachAsset.id === findAsset
-        );
-        console.log("formatToGeoJsonV2");
-        // let assetGeoJson = this.formatToGeoJsonV2(results);
-        //Uncomment below file for legacy geoJson  function
-        let assetGeoJson = this.formatToGeoJson(results);
-        
+      debugger;
+        if(results.status ===200){
+          if(results.data.length >0){
 
-        this.props.addAssetDetails(assetGeoJson);
+            results = results.data.filter(
+              (eachAsset) => eachAsset.id === findAsset
+            );
+            // let assetGeoJson = this.formatToGeoJsonV2(results);
+            //Uncomment below file for legacy geoJson  function
+            let assetGeoJson = this.formatToGeoJson(results);
+            let assetGeoJsonLine = this.formatToGeoJSONLine(results);
+            
+    
+            this.props.addAssetDetails(assetGeoJson);
+            this.setState({geoJSONLine:assetGeoJsonLine});
+
+          } else{
+            message.error("Asset not available, Please contact your support if this is not expected")
+          }
+
+
+        } else{
+          message.error("Asset not available, Please contact your support if this is not expected")
+        }
+ 
         
        }
     dateChangeHandler = (e)=>{
@@ -103,17 +166,17 @@ class Layout extends React.Component{
         console.log(assetGeoJson);
         this.props.addAssetDetails(assetGeoJson);
        })
-        debugger;
         let assetDetails =  await fetchAssets();
-        debugger;
         assetDetails = this.getAllAssetDetails(assetDetails);
         this.props.addAssetDetails(assetDetails);
+        this.props.storeAllAssetBackup(assetDetails);
       
      
       }
 
       resetBtnHandler = async ()=>{
         this.setState({findAsset:null})
+        this.setState({geoJSONLine:null})
         let assetDetails =  await fetchAssets();
         assetDetails = this.getAllAssetDetails(assetDetails);
         this.props.addAssetDetails(assetDetails);
@@ -121,11 +184,11 @@ class Layout extends React.Component{
 
 
      async componentDidUpdate(prevProps, prevState){
-       console.log(localStorage.getItem('token'));
         let assetGeoJson = null;
         let results = null;
         const {assetDetails} = this.props
         const {findAsset,dateFilter,numberOfAssetsToDisplay} = this.state;
+        debugger;
         if(findAsset && findAsset!=""){
           if(findAsset !==prevState.findAsset){
             this.viewTimelineView(findAsset);
@@ -134,7 +197,7 @@ class Layout extends React.Component{
 
         if(prevState.dateFilter !=dateFilter){
         if(dateFilter){
-      
+            this.setState({geoJSONLine:null})
             let assetDetails =  await fetchAssets();
             assetDetails = this.getAllAssetDetails(assetDetails);
             let assetsToDisplay = assetDetails.features.filter((asset)=> new Date (asset.properties.timeStamp) >= dateFilter[0] && new Date (asset.properties.timeStamp) <= dateFilter[1])
@@ -148,6 +211,7 @@ class Layout extends React.Component{
 
           }
           else if(dateFilter ===false){
+            this.setState({geoJSONLine:null})
             let assetDetails =  await fetchAssets();
             assetDetails = this.getAllAssetDetails(assetDetails);
             this.props.addAssetDetails(assetDetails);
@@ -258,10 +322,10 @@ class Layout extends React.Component{
             
             <div>
          
-                      <Dashboard  onDragMove={handleDragMove} className={styles['dashboard']}   style={{
+                    <Dashboard  onDragMove={handleDragMove} className={styles['dashboard']}   style={{
                     transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
                     <div>
-                    <p>Move this component</p>
+                    <p className="apply-filters">Asset Filters</p>
                     <div  style={{'margin-bottom':'10px'}}>
                     <Row>
                       <Col span={20}>
@@ -300,7 +364,7 @@ class Layout extends React.Component{
           />
             </Dashboard>
             <div style={{width:'95%', float:'right'}}>
-            <Map viewTimelineView ={this.viewTimelineView} ref={this.mapRef} assetsToDisplay={assetDetails} assetToDisplay={findAsset} numberOfAssetsToDisplay={numberOfAssetsToDisplay}/>
+            <Map viewTimelineView ={this.viewTimelineView} geoJSONLine={this.state.geoJSONLine} ref={this.mapRef} assetsToDisplay={assetDetails} assetToDisplay={findAsset} numberOfAssetsToDisplay={numberOfAssetsToDisplay}/>
               </div>
             </div>
 
@@ -319,6 +383,9 @@ const mapDispatchToProps = (dispatch) => {
     addAssetDetails: (payload) => {
       dispatch({ type: "ADD_ASSET_DETAILS", payload });
     },
+    storeAllAssetBackup: (payload)=>{
+      dispatch({ type: "ALL_ASSET_BACKUP", payload });
+    }
   };
 };
 

@@ -9,7 +9,7 @@ import {
 export const config = [
   {
     name: 'Dashboard',
-    route: '/dashboard',
+    route: '/assetList',
     icon: <UnorderedListOutlined />,
     activeImg: `DashboardIcon`
   }
