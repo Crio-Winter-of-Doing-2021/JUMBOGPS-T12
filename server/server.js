@@ -34,7 +34,7 @@ const clients = {}
  var io = require('socket.io')(http,{
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST", "PATCH", "DELETE"]
   }
  });
  io.on('connection', (socket)=>{
@@ -83,7 +83,7 @@ app.use('/api/users', userApiRoutes);
 app.use("/api/swagger-ui", swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
 
 // starting server on port 8081
-const server = http.listen(3030, () => {
+const server = http.listen(8081, () => {
     var hostIP = server.address().address;
     var hostPort = server.address().port;
 
