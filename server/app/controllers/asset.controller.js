@@ -42,14 +42,9 @@ exports.create = (req, res) => {
         .catch(err => {
             res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
         });
-    } catch (error) {
-        console.log(error);
+    } catch (error) {        
         res.status(401).send({ message: 'Unauthorized access' });
-    }
-    // create a Asset
-
-    
-    // res.send({ message: "ok" });
+    }    
 };
 
 function getLatestLocation(asset) {
@@ -81,8 +76,7 @@ exports.findAll = (req, res) => {
         .catch(err => {
             res.status(404).send({message: err.message || 'Some error in retrieving Assets'});
         });
-    } catch (error) {
-        console.log(error);
+    } catch (error) {        
         res.status(401).send({ message: 'Unauthorized access' });
     }
  
@@ -102,8 +96,7 @@ exports.findOne = (req, res) => {
         .catch(err => {
             res.status(404).send({message: err.message || 'Some error in retrieving Asset'}); // error handling
         });    
-    } catch (error) {
-        console.log(error);
+    } catch (error) {        
         res.status(401).send({ message: 'Unauthorized access' });
     }
 };

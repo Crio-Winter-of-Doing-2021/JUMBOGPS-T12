@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server",
     "dev": "nodemon server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --recursive --timeout 1000000 --exit"
   },
   "author": "Archisman",
   "license": "ISC",
@@ -22,6 +22,10 @@
     "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
   }
 }

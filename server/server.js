@@ -22,7 +22,7 @@ const dbConfig = require('./config/database.config.js');
 const mongoose = require('mongoose');
 mongoose.connect(
     dbConfig.url,
-    { useNewUrlParser: true },
+    { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true },
     () => console.log('Connected to local database Assets')
 );  
 
@@ -89,3 +89,5 @@ const server = http.listen(8081, () => {
 
     console.log('Server started at http://'+hostIP+':'+hostPort);
 });
+
+module.exports = app;

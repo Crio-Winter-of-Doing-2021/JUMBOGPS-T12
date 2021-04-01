@@ -6,13 +6,12 @@ const userController = require('../controllers/user.controller.js');
 // mandatory routes
 
 // get users data
-router.get('/', async (req, res) => {
-    // if (req.query.id) {
-    //     userController.findOne(req, res);
-    // } else {
-    //     userController.findAll(req, res);
-    // }    
-    userController.findOne(req, res);
+router.get('/', async (req, res) => {    
+    userController.findOne(req, res); // restricted
+});
+
+router.get('/all-users', async (req, res) => {
+    userController.findAll(req, res); // restricted
 });
 
 router.post('/login', async (req, res) => {
@@ -21,20 +20,19 @@ router.post('/login', async (req, res) => {
 
 // add a user to db
 router.post('/register', async (req, res) => {
-    userController.create(req, res);
+    userController.create(req, res); // restricted
 });
 
 // optional routes
 
 // delete user
 router.delete('/', async (req, res) => {
-    userController.deleteOne(req, res);
+    userController.deleteOne(req, res); // restricted
 });
 
 // update a user
-router.patch('/', async (req, res) => {
-    console.log(req.query.id);
-    userController.updateOne(req, res);
+router.patch('/', async (req, res) => {    
+    userController.updateOne(req, res); // restricted
 });
 
 module.exports = router;
