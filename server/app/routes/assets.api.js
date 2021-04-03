@@ -8,27 +8,26 @@ const assetController = require('../controllers/asset.controller.js');
 // get assets data
 router.get('/', async (req, res) => {
     if (req.query.id) {
-        assetController.findOne(req, res);
+        assetController.findOne(req, res); // restricted
     } else {
-        assetController.findAll(req, res);
+        assetController.findAll(req, res); // restricted
     }    
 });
 
 // add a asset to db
 router.post('/', async (req, res) => {
-    assetController.create(req, res);
+    assetController.create(req, res); // admin restricted
 });
 
 // optional routes
 
 // delete asset
 router.delete('/', async (req, res) => {
-    assetController.deleteOne(req, res);
+    assetController.deleteOne(req, res); // admin restricted
 });
 
 // update a asset
-router.patch('/', async (req, res) => {
-    console.log(req.query.id);
+router.patch('/', async (req, res) => {    
     assetController.updateOne(req, res);
 });
 

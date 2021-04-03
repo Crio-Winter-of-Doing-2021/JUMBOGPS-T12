@@ -8,7 +8,7 @@ chai.should();
 chai.use(chaiHttp);
 
 // test cases checking for unauthorized api calls
-describe('Unauthorized API Calls for Users', () => {
+describe('Authorized API Calls for Users', () => {
     /**
      * GET endpoints
      */
@@ -116,8 +116,8 @@ describe('Unauthorized API Calls for Users', () => {
     /**
      * DELETE endpoints
      */
-    describe('DELETE /api/users', () => {
-        it('DELETE /api/users/?id=<id> => 401', (done) => {         
+     describe('DELETE /api/users', () => {
+        it('DELETE /api/users => 401', (done) => {         
 
             chai.request(server)
             .delete('/api/users')

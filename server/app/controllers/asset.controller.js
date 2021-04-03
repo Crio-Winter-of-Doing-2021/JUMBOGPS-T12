@@ -36,7 +36,7 @@ exports.create = (req, res) => {
         // saving a new asset to the database
         asset.save()
         .then(data => {
-            io.sockets.emit('broadcast',{ description: 'Sample message to all connected!'});
+            io.sockets.emit('broadcast',{ description: 'New Asset has been added'});
             res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
         })
         .catch(err => {
@@ -165,15 +165,23 @@ exports.timeFilterAsset = (req, res) => {
 
 // find a specific asset and remove it from the database
 exports.deleteOne = (req, res) => {
-    const reqId = req.query.id; // required reqId
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        if (user.type !== 'Admin') throw 'Unauthorized access';
+    
+        const reqId = req.query.id; // required reqId
 
-    Asset.deleteOne({id: reqId})
-    .then(() => {
-        res.status(200).send({message: 'Asset with id ' + reqId + ' was deleted successfully'}); // success message
-    })
-    .catch(err => {
-        res.status(404).send({message: err.message || 'Some error in deleting Asset'}); // error handling
-    });
+        Asset.deleteOne({id: reqId})
+        .then(() => {
+            res.status(200).send({message: 'Asset with id ' + reqId + ' was deleted successfully'}); // success message
+        })
+        .catch(err => {
+            res.status(404).send({message: err.message || 'Some error in deleting Asset'}); // error handling
+        });
+    } catch (error) {        
+        res.status(401).send({ message: 'Unauthorized access' });
+    }
+    
 };
 
 // this function is used to find the distance between two (latitude, longitude) pairs
