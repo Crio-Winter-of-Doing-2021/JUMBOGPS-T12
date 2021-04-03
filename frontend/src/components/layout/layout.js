@@ -12,7 +12,7 @@ const {Search} = Input;
 const {Option} = Select;
 
 
-class Layout extends React.Component{
+export class Layout extends React.Component{
 
 
     /**
@@ -57,11 +57,8 @@ class Layout extends React.Component{
    * @returns geoJSONLine
    */
 
-    formatToGeoJSONLine = (assetDetails)=>{
-
-      debugger;
-      
-      let locations = assetDetails[0].location.coordinates.map((location)=>{
+    formatToGeoJSONLine = (assetDetails)=>{      
+      let locations = assetDetails.coordinates.map((location)=>{
         return [location.long, location.lat]
       })
     const geoJSONLine =   {
@@ -102,23 +99,21 @@ return geoJSONLine;
         let results =  await fetchAssetDetails(findAsset);
       debugger;
         if(results.status ===200){
-          if(results.data.length >0){
 
-            results = results.data.filter(
-              (eachAsset) => eachAsset.id === findAsset
-            );
+
+            // results = results.data.filter(
+            //   (eachAsset) => eachAsset.id === findAsset
+            // );
             // let assetGeoJson = this.formatToGeoJsonV2(results);
             //Uncomment below file for legacy geoJson  function
-            let assetGeoJson = this.formatToGeoJson(results);
-            let assetGeoJsonLine = this.formatToGeoJSONLine(results);
+            let assetGeoJson = this.formatToGeoJson(results.data);
+            let assetGeoJsonLine = this.formatToGeoJSONLine(results.data);
             
     
             this.props.addAssetDetails(assetGeoJson);
             this.setState({geoJSONLine:assetGeoJsonLine});
 
-          } else{
-            message.error("Asset not available, Please contact your support if this is not expected")
-          }
+  
 
 
         } else{
@@ -129,12 +124,18 @@ return geoJSONLine;
        }
     dateChangeHandler = (e)=>{
         debugger;
-      if(e && e.length ==2){
-      let startDate = new Date (e[0]._d);
-      let endDate = new Date (e[1]._d);
-        this.setState({dateFilter:[startDate,endDate]});
+      if(e && e.length ==2 ){
+        if(e[0] !==null && e[1]!==null){
+          let startDate = new Date (e[0]._d);
+          let endDate = new Date (e[1]._d);
+            this.setState({dateFilter:[startDate,endDate]});
+        } else{
+          message.error("Error in date")
+        }
+
        }
        else{
+     
         this.setState({dateFilter:false});
        }
       }
@@ -221,14 +222,11 @@ return geoJSONLine;
         }
 
         if(numberOfAssetsToDisplay!==prevState.numberOfAssetsToDisplay){
-          debugger;
           let currentDisplayAssets = {...this.props.assetDetails};
           let assetsToDisplay = {...currentDisplayAssets, features:currentDisplayAssets.features.slice(0,numberOfAssetsToDisplay)}
           // console.log(assetsToDisplayDisplay);
           // this.props.addAssetDetails(assetsToDisplayDisplay);
           this.mapRef.current.setAssetToDisplay(assetsToDisplay);
-          
-
         }
 
       }
@@ -253,8 +251,11 @@ return geoJSONLine;
       }
 
     formatToGeoJson = (assetDetails) => {
-    
-        let featureList = assetDetails[0].location.coordinates.map((coordinates, id) => {   
+    /** Updates Needed
+     * remove .location
+     * And assetDetails is nto an array it is an  object
+      */
+        let featureList = assetDetails.coordinates.map((coordinates, id) => {   
           return {
             type: "Feature",
             geometry: {
@@ -265,10 +266,10 @@ return geoJSONLine;
               ],
             },
             properties: {
-              id:`${assetDetails[0].id}`,
-              name: `${assetDetails[0].name}`,
-              assetType:`${assetDetails[0].type}`,
-              description: `description for asset id ${assetDetails[0].id}`,
+              id:`${assetDetails.id}`,
+              name: `${assetDetails.name}`,
+              assetType:`${assetDetails.type}`,
+              description: `description for asset id ${assetDetails.id}`,
               timeStamp:`${coordinates.ts}`
             },
           };
@@ -317,10 +318,7 @@ return geoJSONLine;
         const {translate, numberOfAssetsToDisplay, findAsset    } = this.state
         const {assetDetails} = this.props;
         return(
-
-         
-            
-            <div>
+            <div className="layout-container">
          
                     <Dashboard  onDragMove={handleDragMove} className={styles['dashboard']}   style={{
                     transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
