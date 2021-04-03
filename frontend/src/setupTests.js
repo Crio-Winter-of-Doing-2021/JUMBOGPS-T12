@@ -6,14 +6,34 @@ import '@testing-library/jest-dom';
 
 window.URL.createObjectURL = function() {};
 
+// jest.mock('mapbox-gl/dist/mapbox-gl', function() {
+    
+//     return {
+//   GeolocateControl: jest.fn(),
+//   Map: jest.fn(() => ({
+//     addControl: jest.fn(),
+//     on: jest.fn(),
+//     remove: jest.fn(),
+//   })),
+//   NavigationControl: jest.fn(),
+
+// }});
 
 jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
-    GeolocateControl: jest.fn(),
-    Map: jest.fn(() => ({
-      addControl: jest.fn(),
-      on: function() {},
-      remove: function() {},
-    })),
-    NavigationControl: jest.fn(),
-  }));
+  GeolocateControl: jest.fn(),
+  Map: jest.fn(() => ({
+    addControl: jest.fn(),
+    on: jest.fn(),
+    remove: jest.fn(),
+  })),
+  NavigationControl: jest.fn(),
+}));
 
+// jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
+//     Map: () => ({
+//       addControl: jest.fn(),
+//       on: jest.fn(),
+//       remove: jest.fn(),
+//     })
+//   }));
+  

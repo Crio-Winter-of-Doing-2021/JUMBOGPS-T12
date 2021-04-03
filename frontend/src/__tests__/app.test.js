@@ -1,10 +1,11 @@
-import { mount, configure } from "enzyme";
+import { mount, configure , shallow} from "enzyme";
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17'
 import React from "react";
 import { act } from "react-dom/test-utils";
 import { render, unmountComponentAtNode } from "react-dom";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import configureStore from 'redux-mock-store';
+import Layout from '../components/layout/layout';
 
 const mockStore = configureStore([]);
 
@@ -15,12 +16,9 @@ let container = null;
 let appComponent = {};
 
 
+
 configure({adapter: new Adapter()});
 beforeEach(() => {
-
-  
-
-    
     // setup a DOM element as a render target
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -36,7 +34,7 @@ beforeEach(() => {
 
   
   beforeAll(() => {
-    let store = mockStore({
+    var store = mockStore({
       assetDetails:[],
       username:null,
       allAssetStore:null
@@ -83,14 +81,46 @@ beforeEach(() => {
       expect(container.querySelector('.login-container')).toBe(null);
     })
 
-    it('should  display map and dashboard  component on visiting /map path', () => {
+    it('renders without crashing', () => {
+ 
+    });
+
+
+
+    it('should route to assetList component on /assetList', () => {
       act(() => {
-        appComponent.find('Router').props().history.push('/map')
+        appComponent.find('Router').props().history.push('/AssetList')
         render(appComponent, container)
       });
-      expect(container.querySelector('.map-component')).not.toBe(null);
-      expect(container.querySelector('.apply-filters')).not.toBe(null);
+      expect(container.querySelector('.assetListContainer')).not.toBe(null);
     })
+
+    it('should  display map and dashboard  component on visiting /map path', () => {
+      let pathMap = {};
+      var store = mockStore({
+        assetDetails:[],
+        username:null,
+        allAssetStore:null,
+      
+          lng: 78.333019,
+          lat: 17.49593,
+          zoom: 18,
+          dispHistoryOfRoute: false,
+
+      });
+
+        appComponent = shallow(<App />, true);
+
+        pathMap = appComponent.find(Route).reduce((pathMap, route) => {
+          const routeProps = route.props();
+          pathMap[routeProps.path] = routeProps.component;
+          return pathMap;
+        }, {});
+        expect(pathMap['/map']).toBe(Layout);
+   
+    })
+
+
+    
   })
 
-  
