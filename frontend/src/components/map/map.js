@@ -5,7 +5,12 @@ import fetchFakeData from "../../api/fetchFakeData";
 import { fetchAssets, fetchAssetDetails } from "../../api/apli-client";
 import { connect } from "react-redux";
 import Popup from "../popup/popup";
+import DrawControl from "react-mapbox-gl-draw";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import * as turf from "@turf/turf";
+import { message } from "antd";
 
+var draw;
 mapboxgl.accessToken =
   "pk.eyJ1IjoidGVqZXN3YXIiLCJhIjoiY2tscmhqeGl5MGNtYjJ5bXA1ZTh6NmhxbSJ9.MJs8AL6WXpBPZ-qvz-GBqw";
 
@@ -45,7 +50,30 @@ class Map extends React.Component {
   viewTimelineView = async (findAsset) => {
     this.props.viewTimelineView(findAsset);
   };
+
+  drawPolygon = (points) => {
+    this.map.addLayer({
+      id: "maine",
+      type: "fill",
+      source: {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: points,
+          },
+        },
+      },
+      layout: {},
+      paint: {
+        "fill-color": "#088",
+        "fill-opacity": 0.3,
+      },
+    });
+  };
   async componentDidUpdate() {
+    const map = this.map;
     if (this.shouldComponentUpdate) {
       // let assetGeoJson = null;
       // let results = null;
@@ -74,8 +102,8 @@ class Map extends React.Component {
             essential: true,
           });
         }
-        debugger;
         if (geoJSONLine && geoJSONLine.data.geometry.coordinates.length > 0) {
+          debugger;
           if (!this.map.getSource("route")) {
             this.map.addSource("route", {
               ...geoJSONLine,
@@ -94,9 +122,13 @@ class Map extends React.Component {
               },
             });
           } else {
-            this.map.getSource("route").setData("route", {
-              ...geoJSONLine,
-            });
+            debugger;
+            this.map.getSource("route").setData(geoJSONLine.data);
+            this.map.panTo(
+              geoJSONLine.data.geometry.coordinates[
+                geoJSONLine.data.geometry.coordinates.length - 1
+              ]
+            );
           }
         } else {
           if (this.map.getSource("route")) {
@@ -107,9 +139,18 @@ class Map extends React.Component {
       }
     }
   }
+  onDrawCreate = ({ features }) => {
+    console.log(features);
+  };
 
+  onDrawUpdate = ({ features }) => {
+    console.log(features);
+  };
   setAssetToDisplay = (assetsToDisplay) => {
     this.map.getSource("random-points-data").setData(assetsToDisplay);
+    if (this.map.getSource("route")) {
+      this.map.removeLayer("route");
+    }
   };
   formatToGeoJson = (assetDetails) => {
     debugger;
@@ -172,20 +213,6 @@ class Map extends React.Component {
     return assetGeoJson;
   };
 
-  // fetchCurrentPosition = ()=>{
-
-  //   if ("geolocation" in navigator) {
-  //     navigator.geolocation.getCurrentPosition(function(position) {
-
-  //       const currentPosition = {lat:position.coords.latitude,long:position.coords.longitude}
-  //       return currentPosition;
-  //     });
-  //   } else {
-  //     console.log("Not Available");
-  //   }
-
-  // }
-
   loadMap = () => {
     const { lng, lat, zoom } = this.state;
 
@@ -193,6 +220,7 @@ class Map extends React.Component {
     console.log(this.props.assetsToDisplay);
 
     // const currentPosition = this.fetchCurrentPosition();
+    const { map } = this;
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
@@ -200,39 +228,11 @@ class Map extends React.Component {
       center: [lng, lat],
       zoom,
     });
+
     this.map.on("load", () => {
+      console.log("Did not go to load");
       const { map } = this;
       const { assetsToDisplay } = this.props;
-
-      // add the data source for new a feature collection with no features
-
-      /**Fetching asset locations, Change later */
-      // let results = await this.fetchAssetLocations();
-      // results = results.data.slice(0, this.props.numberOfAssetsToDisplay);
-      // let featureList = results.map((asset, id) => {
-      //   return {
-      //     type: "Feature",
-      //     geometry: {
-      //       type: "Point",
-      //       coordinates: [
-      //         asset.coordinates.long,
-      //         asset.coordinates.lat,
-      //       ],
-      //     },
-      //     properties: {
-      //       id:`${asset.id}`,
-      //       name: `${asset.name}`,
-      //       assetType:`${asset.type}`,
-      //       description: `description for asset id ${asset.id}`,
-      //     },
-      //   };
-      // });
-      // let assetGeoJson = {
-      //   type: "FeatureCollection",
-      //   features: featureList,
-      // };
-
-      // let assetGeoJson = await this.getAllAssetDetails();
       map.loadImage(
         "https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png",
         function (error, image) {
@@ -240,7 +240,6 @@ class Map extends React.Component {
           map.addImage("custom-marker", image);
         }
       );
-      debugger;
       console.log(assetsToDisplay);
       if (assetsToDisplay.features && assetsToDisplay.features.length) {
         map.flyTo({
@@ -251,9 +250,6 @@ class Map extends React.Component {
           essential: true,
         });
       }
-
-      debugger;
-
       let assetGeoJson = assetsToDisplay;
       this.map.addSource("random-points-data", {
         type: "geojson",
@@ -365,15 +361,69 @@ class Map extends React.Component {
       //     zoom: this.map.getZoom().toFixed(4),
       //   });
     });
+    draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+    });
+
+    this.map.addControl(draw);
+    this.map.on("draw.create", this.createArea);
+    this.map.on("draw.delete", this.deleteArea);
+    this.map.on("draw.update", this.updateArea);
   };
 
   componentWillUnmount() {
-    if (this.map) {
-      this.map.remove();
+    const map = this.map;
+    console.log("This is map log" + this.map);
+    console.log(map);
+    if (map) {
+      map.remove();
       mapboxgl.clearStorage();
     }
   }
 
+  createArea = (e) => {
+    debugger;
+    const {addGeoFence} = this.props
+    let data = draw.getAll();
+    const polygonData = data.features[0].geometry.coordinates;
+    addGeoFence(polygonData);
+    message.info("Please submit the geojson asset ID from dashboard filter")
+    this.drawPolygon(polygonData);
+    this.polygonDataCalc(data);
+  };
+
+  polygonDataCalc = (data) => {
+    debugger;
+    console.log(turf);
+    let area = turf.area(data);
+    let centroid = turf.centroid(data);
+    let rounded_area = Math.round(area * 100) / 100;
+    this.polygonDiv.innerHTML =
+      "<p><strong>Area: " +
+      rounded_area +
+      " square meter</strong></p><h4>Centroid: <br />" +
+      centroid.geometry.coordinates +
+      "</h4>";
+  };
+
+  deleteArea(e) {
+    debugger;
+    let data = draw.getAll();
+    this.map.removeLayer("maine").removeSource("maine");
+  }
+  updateArea = (e) => {
+    console.log(e);
+    let data = draw.getAll();
+    debugger;
+    this.map.removeLayer("maine").removeSource("maine");
+    const polygonData = data.features[0].geometry.coordinates;
+    this.drawPolygon(polygonData);
+    this.polygonDataCalc(data);
+  };
   render() {
     const { lng, lat, zoom } = this.state;
 
@@ -386,7 +436,9 @@ class Map extends React.Component {
           ref={(el) => (this.mapContainer = el)}
           style={{ width: "100%", height: "100vh" }}
           className="absolute top right left bottom map-component"
-        />
+        >
+          <div id="calculated-area" ref={(el) => (this.polygonDiv = el)}></div>
+        </div>
       </div>
     );
   }

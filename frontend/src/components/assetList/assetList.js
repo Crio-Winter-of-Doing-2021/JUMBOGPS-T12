@@ -29,7 +29,7 @@ class DashboardMainPage extends React.Component {
     const { testSuites , assetDetails} = this.props;
     const {tableHeaders} = this.state;
     return (
-      <div className={styles["main-container"]}>
+      <div className={styles["main-container"] + " assetListContainer"}>
         <div className={styles["col"]}>
           <div className={styles["card"] + " " + styles["shadow"]}>
             <div className={styles["card-header"]}>

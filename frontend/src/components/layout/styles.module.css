@@ -10,4 +10,5 @@
           margin-top: 5%;
           box-shadow: 0 8px 6px -6px black;
           border-radius: 10px;
+          min-width: 250px;
     }
