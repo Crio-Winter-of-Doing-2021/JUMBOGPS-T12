@@ -56,6 +56,10 @@ const AssetSchema = mongoose.Schema({
         end: {
             type: Date,
             required: true
+        },
+        default: {
+            type: [[Number]],
+            required: true
         }
     },
     location: {
@@ -70,8 +74,8 @@ const AssetSchema = mongoose.Schema({
         }
     },
     geofence:{
-        type:Array,
-        required:false
+        type: Array,
+        required: false
     }
 }, { collection: 'assets' });
 

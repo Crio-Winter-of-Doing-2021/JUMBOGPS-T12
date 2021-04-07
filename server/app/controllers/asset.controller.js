@@ -7,11 +7,35 @@ const { all } = require('../routes/assets.api.js');
 const io=app.getSocketIo();
 const clients = app.getAllclients
 const turf = require('@turf/turf');
+const mapboxToken = require('../../config/api.config').mapboxToken;
+const axios = require('axios');
 
+async function getDefaultRoute(src, dest) { 
+    var locationString = src[0]+'%2C'+src[1]+'%3B'+dest[0]+'%2C'+dest[1];
+    var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' + locationString + '.json';
+    var queryParams = {
+        geometries: 'geojson',
+        steps: 'true',
+        overview: 'full',
+        language: 'en',
+        access_token: mapboxToken
+    };
+
+    return axios.get(url, {params: queryParams})
+    .then(res => {                
+        return res.data.routes[0].geometry.coordinates; // return default route lineString coordinates only
+    })
+    .catch(err => {
+        // console.log(err.message);
+        return []; // return empty route if no default found
+    });
+
+}
 
 exports.create = (req, res) => {
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+
         const asset = new Asset({
             id: req.body.id,
             name: req.body.name,
@@ -20,7 +44,8 @@ exports.create = (req, res) => {
                 src: req.body.src.split(',').map(x => +x),
                 dest: req.body.dest.split(',').map(x => +x),
                 start: new Date(req.body.start),
-                end: new Date(req.body.end)
+                end: new Date(req.body.end),
+                default: []
             },
             location: {
                 type: 'Point',
@@ -30,19 +55,38 @@ exports.create = (req, res) => {
                     long: req.body.long
                 }]
             }
-        });
+        });                
 
-        if (user.type !== 'Admin') throw 'Unauthorized access';
+        if (user.type !== 'Admin') {
+            console.log('here');
+            throw 'Unauthorized access';
+        }
     
         // saving a new asset to the database
-        asset.save()
-        .then(data => {
-            // io.sockets.emit('broadcast',{ description: 'New Asset has been added'});
-            res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
+        getDefaultRoute(asset.route.src, asset.route.dest)
+        .then(route => {            
+            asset.route.default = route; // setting the route            
+
+            asset.save()
+            .then(data => {                
+                res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
+            })
+            .catch(err => {
+                res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
+            });    
         })
         .catch(err => {
-            res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
+            // saving the default asset            
+            asset.save()
+            .then(data => {
+                // io.sockets.emit('broadcast',{ description: 'New Asset has been added'});
+                res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
+            })
+            .catch(err => {
+                res.status(500).send({message: err.message || 'Some error in creating Asset data'}); // error handling
+            });    
         });
+        
     } catch (error) {        
         res.status(401).send({ message: 'Unauthorized access' });
     }    
@@ -106,7 +150,7 @@ exports.findOne = (req, res) => {
 exports.addGeoFence = (req,res)=>{
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
-    const response =   Asset.findOne({id:req.query.id}, (err,asset)=>{
+        const response =   Asset.findOne({id:req.query.id}, (err,asset)=>{
         if(err){
             res.status(500).json({success:false, message:'Requested asset is not available'})
         } else{
@@ -177,12 +221,6 @@ exports.timeFilterAsset = (req, res) => {
     
     if (req.query.start) start = new Date(req.query.start);
     if (req.query.end) end = new Date(req.query.end);
-
-    console.log(start);
-    console.log(end);
-
-    console.log(start);
-    console.log(end);
     
     Asset.find()
     .then(assets => {
@@ -285,12 +323,7 @@ exports.updateOne = (req, res) => {
 
         Asset.findOne({ id: reqId }, (err, asset)=>{
 
-            if(!err){
-                const src = { long: asset.route.src[0], lat: asset.route.src[1]};
-                const dest = { long: asset.route.dest[0], lat: asset.route.dest[1]};
-                const allowedDistance = distance(src, dest); // distance the asset is allowd to travel from each of src and dest
-                const fromSrc = distance(src, getLatestLocation(asset)); // distance of asset from src
-                const fromDest = distance(dest, getLatestLocation(asset)); // distance of asset from dest
+            if(!err){                
                 var now = new Date();              
                 var yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000));
                      
@@ -303,19 +336,22 @@ exports.updateOne = (req, res) => {
                                  */
                                 let latestLocation = getLatestLocation(asset.toObject());
 
-                                 var pt = turf.point([latestLocation.long,latestLocation.lat]);
-                                 var polygon = turf.polygon(asset.geofence.toObject());
-                                 var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
-                                if (!isPointOnPolygon) {  
-                                io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
-                                     console.log("Data Asset")
-                                     console.log(asset);
+                                var pt = turf.point([latestLocation.long,latestLocation.lat]);
+                                var polygon = turf.polygon(asset.geofence.toObject());
+                                var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
 
-                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)})
-                            } else{
-                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)})
+                                var defaultRoute = turf.lineString(asset.route.default);
+
+                                if (!isPointOnPolygon) {  // geofence check error
+                                    io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
+                                        console.log("Data Asset")
+                                        console.log(asset);                                    
+                                } else if (!turf.booleanPointOnLine(pt, defaultRoute)) {   // default route deviation check error
+                                    io.to(client).emit('DEVIATING FROM ROUTE', {data: reqId}); 
+                                }
+
+                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)});
                             }
-                        }
                         }
                     });
     
