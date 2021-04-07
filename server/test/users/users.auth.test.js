@@ -50,8 +50,8 @@ describe('Authorized API Calls for Users', () => {
         // login endpoint
         it('POST /api/users/login => 401', (done) => {
             let user = {
-                id: "user101",
-                password: "userPass10101"
+                id: "12345",
+                password: "tejeshwa"
             };
 
             chai.request(server)
@@ -70,8 +70,8 @@ describe('Authorized API Calls for Users', () => {
         // register endpoint
         it('POST /api/users/register => 401', (done) => {         
             let user = {
-                id: "user101",
-                name: "New Tracker",
+                id: "12345",
+                name: "tejeshwar",
                 type: "Tracker",
                 password: "trackerPass10101"
             };

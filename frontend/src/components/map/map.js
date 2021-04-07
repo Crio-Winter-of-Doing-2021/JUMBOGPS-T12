@@ -390,6 +390,7 @@ class Map extends React.Component {
     const {addGeoFence} = this.props
     let data = draw.getAll();
     const polygonData = data.features[0].geometry.coordinates;
+    debugger;
     addGeoFence(polygonData);
     message.info("Please submit the geojson asset ID from dashboard filter")
     this.drawPolygon(polygonData);
@@ -410,8 +411,7 @@ class Map extends React.Component {
       "</h4>";
   };
 
-  deleteArea(e) {
-    debugger;
+  deleteArea =  ()=>{
     let data = draw.getAll();
     this.map.removeLayer("maine").removeSource("maine");
   }

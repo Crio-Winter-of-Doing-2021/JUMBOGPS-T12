@@ -39,4 +39,8 @@ router.get('/filter/time', async (req, res) => {
     assetController.timeFilterAsset(req, res);
 });
 
+router.put('/geofence', async (req, res)=>{
+    assetController.addGeoFence(req,res);
+})
+
 module.exports = router;

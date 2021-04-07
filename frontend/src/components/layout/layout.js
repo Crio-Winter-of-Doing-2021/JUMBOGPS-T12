@@ -20,7 +20,7 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import turf from "@turf/turf";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import Map from "../map/map";
-import { fetchAssets, fetchAssetDetails } from "../../api/apli-client";
+import { fetchAssets, fetchAssetDetails,addgeofence } from "../../api/apli-client";
 import { connect } from "react-redux";
 import styles from "./styles.module.css";
 import { socket } from "../home/home";
@@ -267,6 +267,7 @@ export class Layout extends React.Component {
      * remove .location
      * And assetDetails is nto an array it is an  object
      */
+    debugger;
     let featureList = assetDetails.coordinates.map((coordinates, id) => {
       return {
         type: "Feature",
@@ -345,8 +346,9 @@ export class Layout extends React.Component {
     console.log("click", e);
   }
 
-  submitgeoFenceData = ()=>{
-    
+  submitgeoFenceData = (id)=>{
+    addgeofence(id,this.state.addGeoFence);
+    this.setState({addGeoFence:null});
   }
   render() {
     const { handleDragMove, dateChangeHandler } = this;
@@ -418,20 +420,16 @@ export class Layout extends React.Component {
           </Row>
 
           {this.state.addGeoFence ? (          <Row>
-          <Col span={20}>
+          <Col span={24}>
             <Input.Group compact>
-              <Search
+               <Search
                 placeholder="Submit GeoFence assetID"
-                onSearch={this.searcAsset}
-                allowClear={true}
-                enterButton
+                allowClear
+                enterButton="Submit"
+                size="middle"
+                onSearch={this.submitgeoFenceData}
               />
             </Input.Group>
-          </Col>
-          <Col span={4}>
-            <Button onClick={this.submitgeoFenceData} type="primary">
-              Submit
-            </Button>
           </Col>
           </Row>):''}
 

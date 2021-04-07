@@ -6,8 +6,9 @@ const app=require('../../server');
 const { all } = require('../routes/assets.api.js');
 const io=app.getSocketIo();
 const clients = app.getAllclients
+const turf = require('@turf/turf');
 
-// create a new meme
+
 exports.create = (req, res) => {
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
@@ -36,7 +37,7 @@ exports.create = (req, res) => {
         // saving a new asset to the database
         asset.save()
         .then(data => {
-            io.sockets.emit('broadcast',{ description: 'New Asset has been added'});
+            // io.sockets.emit('broadcast',{ description: 'New Asset has been added'});
             res.status(200).send({message: `Added new asset data ${data.id}`}); // sending back the new entry
         })
         .catch(err => {
@@ -65,6 +66,7 @@ function getAssetInfo(asset) {
 
 // find all assets
 exports.findAll = (req, res) => {
+    console.log(req);
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
         Asset.find()
@@ -94,12 +96,41 @@ exports.findOne = (req, res) => {
             res.status(200).send(getCoordsInRange(asset, yesterday, now));
         })
         .catch(err => {
-            res.status(404).send({message: err.message || 'Some error in retrieving Asset'}); // error handling
+            res.status(201).send({message: err.message || 'Some error in retrieving Asset'}); // error handling
         });    
     } catch (error) {        
         res.status(401).send({ message: 'Unauthorized access' });
     }
 };
+
+exports.addGeoFence = (req,res)=>{
+    try {
+        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+    const response =   Asset.findOne({id:req.query.id}, (err,asset)=>{
+        if(err){
+            res.status(500).json({success:false, message:'Requested asset is not available'})
+        } else{
+
+            try {
+                asset.geofence = req.body;
+                asset.save();
+                res.status(200).json({success:true})
+            } catch (error) {
+                res.status(500).json({success:false, message:'Internal server error, Unable to add geofence'})
+            }
+     
+         
+        }
+       })
+   
+    } catch (error) {
+        if(!user){
+            res.status(401).json({success:false, message:'Unauthorized'})
+        }
+        res.status(400).json({success:false, message:'Bad request'})
+    }
+}
+
 
 // filter results based on search parameters
 exports.filterAsset = (req, res) => {
@@ -184,6 +215,8 @@ exports.deleteOne = (req, res) => {
     
 };
 
+
+
 // this function is used to find the distance between two (latitude, longitude) pairs
 function distance(point1, point2) {
     var lat1 = point1.lat, lat2 = point2.lat;
@@ -250,38 +283,55 @@ exports.updateOne = (req, res) => {
     ]}})
     .then(transaction => {
 
-        Asset.findOne({ id: reqId })
-        .then(asset => {
-            console.log(asset);
-            const src = { long: asset.route.src[0], lat: asset.route.src[1]};
-            const dest = { long: asset.route.dest[0], lat: asset.route.dest[1]};
-            const allowedDistance = distance(src, dest); // distance the asset is allowd to travel from each of src and dest
-            const fromSrc = distance(src, getLatestLocation(asset)); // distance of asset from src
-            const fromDest = distance(dest, getLatestLocation(asset)); // distance of asset from dest
+        Asset.findOne({ id: reqId }, (err, asset)=>{
 
-                 
-                Object.keys(clients).forEach((client)=>{                
-                    if(clients[client].timelineView){
-                        console.log("came here")
-                        if(clients[client].assetID ===reqId){
-                            if (fromSrc > allowedDistance && fromDest > allowedDistance) {  
-                            io.to(client).emit('OUT OF GEOFENCE', {data:asset});      
-                        } else{
-                            io.to(client).emit('updated-location-details', {data:asset})
+            if(!err){
+                const src = { long: asset.route.src[0], lat: asset.route.src[1]};
+                const dest = { long: asset.route.dest[0], lat: asset.route.dest[1]};
+                const allowedDistance = distance(src, dest); // distance the asset is allowd to travel from each of src and dest
+                const fromSrc = distance(src, getLatestLocation(asset)); // distance of asset from src
+                const fromDest = distance(dest, getLatestLocation(asset)); // distance of asset from dest
+                var now = new Date();              
+                var yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+                     
+                    Object.keys(clients).forEach((client)=>{               
+                        if(clients[client].timelineView){ 
+                            console.log("came here")
+                            if(clients[client].assetID ===reqId){
+                                /**
+                                 * Updated logic for geofence
+                                 */
+                                let latestLocation = getLatestLocation(asset.toObject());
+
+                                 var pt = turf.point([latestLocation.long,latestLocation.lat]);
+                                 var polygon = turf.polygon(asset.geofence.toObject());
+                                 var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
+                                if (!isPointOnPolygon) {  
+                                io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
+                                     console.log("Data Asset")
+                                     console.log(asset);
+
+                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)})
+                            } else{
+                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)})
+                            }
                         }
-                    }
-                    }
-                });
-      
+                        }
+                    });
+    
+            } else{
+                res.status(500).json({message: 'Internal server error '+ reqId});
+            }
+
         })
-        .catch(err => {
-            console.log(err);
-        });   
-                
+
+     
         res.status(200).send({message: 'Successfully updated Asset with id '+ reqId}); // update process info
     })
     .catch(err => {        
         res.status(404).send({message: err.message || 'Some error in updating Asset'}); // error handling
     });
 };
+
+
 
