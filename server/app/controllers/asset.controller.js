@@ -38,7 +38,7 @@ exports.create = (req, res) => {
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
 
-        var startCoords = req.body.src.split(',').map(x => +x);
+        var startCoords = req.body.src.split(',').map(x => +x);        
 
         const asset = new Asset({
             id: req.body.id,
