@@ -11,7 +11,9 @@ const mapboxToken = require('../../config/api.config').mapboxToken;
 const axios = require('axios');
 
 async function getDefaultRoute(src, dest) { 
-    var locationString = src[0]+'%2C'+src[1]+'%3B'+dest[0]+'%2C'+dest[1];
+
+
+    var locationString = src[1]+'%2C'+src[0]+'%3B'+dest[1]+'%2C'+dest[0];
     var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' + locationString + '.json';
     var queryParams = {
         geometries: 'geojson',
@@ -53,8 +55,8 @@ exports.create = (req, res) => {
                 type: 'Point',
                 coordinates: [{
                     ts: new Date(req.body.ts),
-                    lat: startCoords[1],
-                    long: startCoords[0]
+                    lat: startCoords[0],
+                    long: startCoords[1]
                 }]
             }
         });                

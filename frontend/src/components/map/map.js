@@ -128,20 +128,23 @@ class Map extends React.Component {
       }
 
       if(timelineviewData.expectedTravelRoute){
+        debugger
+        let expectedTravelRoute = timelineviewData.expectedTravelRoute
         if (!this.map.getSource("expectedTravelRoute")) {
+          debugger
           this.map.addSource("expectedTravelRoute", {
-            ...timelineviewData.expectedTravelRoute,
+            ...expectedTravelRoute,
           });
           this.map.addLayer({
-            id: "route",
+            id: "expectedTravelRoute",
             type: "line",
-            source: "route",
+            source: "expectedTravelRoute",
             layout: {
               "line-join": "round",
               "line-cap": "round",
             },
             paint: {
-              "line-color": "#888",
+              "line-color": "#0000FF",
               "line-width": 10,
             },
           });
@@ -444,7 +447,6 @@ class Map extends React.Component {
   };
 
   deleteArea =  ()=>{
-    this.map.removeLayer("maine").removeSource("maine");
     this.map.removeLayer("maine").removeSource("maine");
   }
   updateArea = (e) => {
