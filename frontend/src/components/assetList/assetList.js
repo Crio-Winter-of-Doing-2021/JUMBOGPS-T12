@@ -4,8 +4,11 @@ import {
 
   Link
 } from "react-router-dom";
-
 import {connect} from 'react-redux'
+import { Button, Modal } from "antd";
+import CreateAsset from '../createAsset/createAsset';
+import {addAsset} from '../../api/apli-client'
+
 
 
 class DashboardMainPage extends React.Component {
@@ -17,19 +20,37 @@ class DashboardMainPage extends React.Component {
             "Planned To",
             "Asset location",
             "last timestamp"
-        ]
+        ],
+        modalVisible:false
+    }
+
+    showModal = ()=>{
+      this.setState({modalVisible:true});
+    }
+    closeModal = ()=>{
+      this.setState({modalVisible:false});
     }
 
     componentDidMount(){
         console.log(this.props.assetDetails);
 
     }
- 
+    addAsset = (data)=>{
+      debugger;
+      this.setState({modalVisible:false});
+
+    }
   render() {
-    const { testSuites , assetDetails} = this.props;
+    const { assetDetails} = this.props;
     const {tableHeaders} = this.state;
     return (
+      <>
+  
       <div className={styles["main-container"] + " assetListContainer"}>
+        <div style={{textAlign:'left', margin:'10px'}}>
+        <Button type="primary" onClick={this.showModal}>Add asset</Button>
+          </div>
+
         <div className={styles["col"]}>
           <div className={styles["card"] + " " + styles["shadow"]}>
             <div className={styles["card-header"]}>
@@ -118,6 +139,18 @@ class DashboardMainPage extends React.Component {
           </div>
         </div>
       </div>
+
+      <Modal
+        title="Add Asset"
+        visible={this.state.modalVisible}
+        onOk={this.addAsset}
+        // confirmLoading={confirmLoading}
+        onCancel={this.closeModal}
+      >
+         <CreateAsset />
+      </Modal>
+
+      </>
     );
   }
 }

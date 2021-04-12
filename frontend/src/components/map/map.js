@@ -75,20 +75,8 @@ class Map extends React.Component {
   async componentDidUpdate() {
     const map = this.map;
     if (this.shouldComponentUpdate) {
-      // let assetGeoJson = null;
-      // let results = null;
-      // if (this.props.assetToDisplay.length > 0) {
-      //   // assetGeoJson   = await fetchFakeData({longitude:78.486671 , latitude:17.385044});
-      //   results = await this.fetchAssetDetails(this.props.assetToDisplay);
-      //   debugger;
-      //   results = results.data.filter(
-      //     (eachAsset) => eachAsset.id === this.props.assetToDisplay
-      //   );
-      //   debugger;
 
-      //     assetGeoJson = this.formatToGeoJson(results);
-
-      const { assetsToDisplay, geoJSONLine } = this.props;
+      const { assetsToDisplay, geoJSONLine, timelineviewData } = this.props;
       if (assetsToDisplay) {
         if (this.map.getSource("random-points-data")) {
           this.map.getSource("random-points-data").setData(assetsToDisplay);
@@ -136,6 +124,50 @@ class Map extends React.Component {
             this.map.removeSource("route");
           }
         }
+
+      }
+
+      if(timelineviewData.expectedTravelRoute){
+        if (!this.map.getSource("expectedTravelRoute")) {
+          this.map.addSource("expectedTravelRoute", {
+            ...timelineviewData.expectedTravelRoute,
+          });
+          this.map.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#888",
+              "line-width": 10,
+            },
+          });
+        } else {
+
+          this.map.getSource("expectedTravelRoute").setData(timelineviewData.expectedTravelRoute.data);
+          this.map.panTo(
+            timelineviewData.expectedTravelRoute.data.geometry.coordinates[
+              timelineviewData.expectedTravelRoute.data.geometry.coordinates.length - 1
+            ]
+          );
+        }
+        debugger;
+        if(timelineviewData.geofence){
+
+          if(!this.map.getSource('maine')){
+            this.drawPolygon(timelineviewData.geofence);
+          }
+
+        } else{
+          if(this.map.getSource('maine')){
+            this.map.removeLayer("maine").removeSource("maine");
+          }
+      
+        }
+
       }
     }
   }
@@ -412,7 +444,7 @@ class Map extends React.Component {
   };
 
   deleteArea =  ()=>{
-    let data = draw.getAll();
+    this.map.removeLayer("maine").removeSource("maine");
     this.map.removeLayer("maine").removeSource("maine");
   }
   updateArea = (e) => {

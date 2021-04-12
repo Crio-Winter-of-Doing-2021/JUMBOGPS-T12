@@ -35,8 +35,15 @@ export const registerUser = (user) => {
 
 export const addgeofence = (id,data)=>{
     let token = localStorage.getItem('token') || "";
-    debugger;
     return axios.put(`/api/assets/geofence?id=${id}`, data, {headers:{
         token: token
     }});
+}
+
+export const addAsset = (data)=>{
+    let token = localStorage.getItem('token') || "";
+    return axios.post(`/api/assets/`, data, {headers:{
+        token: token
+    }});
+
 }

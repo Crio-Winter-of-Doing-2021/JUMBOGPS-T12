@@ -62,6 +62,8 @@ export class Layout extends React.Component {
       assetTypes: ["truck", "deliveryAsset"],
       assetTypeFilter: null,
       addGeoFence: null,
+      expectedTravelRoute:null,
+      geofence:null
     };
   }
 
@@ -73,7 +75,8 @@ export class Layout extends React.Component {
    */
 
   formatToGeoJSONLine = (assetDetails) => {
-    let locations = assetDetails.coordinates.map((location) => {
+    debugger;
+    let locations = assetDetails.map((location) => {
       return [location.long, location.lat];
     });
     const geoJSONLine = {
@@ -122,16 +125,27 @@ export class Layout extends React.Component {
     let results = await fetchAssetDetails(findAsset);
     debugger;
     if (results.status === 200) {
-      let assetGeoJson = this.formatToGeoJson(results.data);
-      let assetGeoJsonLine = this.formatToGeoJSONLine(results.data);
+      if(results.data.coordinates.length > 0){
 
-      this.props.addAssetDetails(assetGeoJson);
-      this.setState({ geoJSONLine: assetGeoJsonLine });
-    } else {
-      message.error(
-        "Asset not available, Please contact your support if this is not expected"
-      );
-    }
+        let assetGeoJson = this.formatToGeoJson(results.data);
+        let assetGeoJsonLine = this.formatToGeoJSONLine(results.data.coordinates);
+        debugger;
+        let expectedGeoRoute = this.formatToGeoJSONLine(results.data.defaultRoute);
+  
+        this.props.addAssetDetails(assetGeoJson);
+        this.setState({ geoJSONLine: assetGeoJsonLine, expectedTravelRoute:expectedGeoRoute, geofence:results.data.geofence });
+      } else {
+        message.error(
+          "Asset location is not updated in 24 hours"
+        );
+      }
+
+      } else{
+        message.error(
+          "Asset not available, Please contact your support if this is not expected"
+        );
+      }
+
   };
   dateChangeHandler = (e) => {
     debugger;
@@ -168,7 +182,7 @@ export class Layout extends React.Component {
 
     socket.on("updated-location-details", (res) => {
       let assetGeoJson = this.formatToGeoJson(res.data);
-      let assetGeoJsonLine = this.formatToGeoJSONLine(res.data);
+      let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
       this.setState({ geoJSONLine: assetGeoJsonLine });
       this.props.addAssetDetails(assetGeoJson);
     });
@@ -185,6 +199,7 @@ export class Layout extends React.Component {
   resetBtnHandler = async () => {
     this.setState({ findAsset: null });
     this.setState({ geoJSONLine: null });
+    this.setState({geofence:null})
     let assetDetails = await fetchAssets();
     assetDetails = this.getAllAssetDetails(assetDetails);
     debugger;
@@ -352,7 +367,7 @@ export class Layout extends React.Component {
   }
   render() {
     const { handleDragMove, dateChangeHandler } = this;
-    const { translate, numberOfAssetsToDisplay, findAsset } = this.state;
+    const { translate, numberOfAssetsToDisplay, findAsset, geoJSONLine, geofence, expectedTravelRoute } = this.state;
     const { assetDetails } = this.props;
     return (
       <div className="layout-container">
@@ -436,6 +451,13 @@ export class Layout extends React.Component {
         </Dashboard>
         <div style={{ width: "95%", float: "right" }}>
           <Map
+          timelineviewData = {
+           {
+            geoJSONLine:geoJSONLine,
+            geofence:geofence,
+            expectedTravelRoute:expectedTravelRoute
+           }
+          }
             viewTimelineView={this.viewTimelineView}
             geoJSONLine={this.state.geoJSONLine}
             ref={this.mapRef}

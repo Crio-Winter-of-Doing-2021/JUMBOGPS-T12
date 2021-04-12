@@ -2,7 +2,7 @@
 // import DashboardIcon from '../../assets/images/Icon.png';
 
 import {
-  UnorderedListOutlined
+  UnorderedListOutlined, CompassOutlined
 } from '@ant-design/icons';
 
 
@@ -12,6 +12,7 @@ export const config = [
     route: '/assetList',
     icon: <UnorderedListOutlined />,
     activeImg: `DashboardIcon`
-  }
+  },
+
 
 ];

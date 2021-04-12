@@ -2,7 +2,6 @@ import React from 'react';
 
 const Popup = ({features,viewTimelineView})=>{
 
-    debugger;
     var d = new Date(features.timeStamp),
     minutes = d.getMinutes().toString().length == 1 ? '0'+d.getMinutes() : d.getMinutes(),
     hours = d.getHours().toString().length == 1 ? '0'+d.getHours() : d.getHours(),

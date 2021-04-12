@@ -104,7 +104,11 @@ function getAssetInfo(asset) {
         name: asset.name,
         src: asset.route.src,
         dest: asset.route.dest,
-        coordinates: getLatestLocation(asset)
+        coordinates: getLatestLocation(asset),
+        geofence:asset.geofence,
+        defaultRoute:asset.route.default.map((eachLocation)=>{
+            return {lat:eachLocation[1], long:eachLocation[0]}
+        })
     };
 }
 
@@ -205,7 +209,6 @@ function getCoordsInRange(asset, start, end) {
             coords.push(asset.location.coordinates[i]);
         }
     }
-    console.log(coords);
     var info = getAssetInfo(asset);
     info.coordinates = coords;
     console.log(info);
@@ -337,16 +340,20 @@ exports.updateOne = (req, res) => {
                                 let latestLocation = getLatestLocation(asset.toObject());
 
                                 var pt = turf.point([latestLocation.long,latestLocation.lat]);
-                                var polygon = turf.polygon(asset.geofence.toObject());
-                                var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
+                        
+                                if(asset.geofence.lenght>0){
+                                    var polygon = turf.polygon(asset.geofence.toObject());
+                                    var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
+                                    if (!isPointOnPolygon) {  // geofence check error
+                                        io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
+                                            console.log("Data Asset")
+                                                                   
+                                    } 
+    
+                                }
 
                                 var defaultRoute = turf.lineString(asset.route.default);
-
-                                if (!isPointOnPolygon) {  // geofence check error
-                                    io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
-                                        console.log("Data Asset")
-                                        console.log(asset);                                    
-                                } else if (!turf.booleanPointOnLine(pt, defaultRoute)) {   // default route deviation check error
+                                if (!turf.booleanPointOnLine(pt, defaultRoute)) {   // default route deviation check error
                                     io.to(client).emit('DEVIATING FROM ROUTE', {data: reqId}); 
                                 }
 
