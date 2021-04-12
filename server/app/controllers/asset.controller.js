@@ -36,7 +36,7 @@ exports.create = (req, res) => {
     try {
         const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
 
-        var startCoords = req.body.src.split(',').map(x => +x);
+        var startCoords = req.body.src.split(',').map(x => +x);        
 
         const asset = new Asset({
             id: req.body.id,
@@ -52,7 +52,7 @@ exports.create = (req, res) => {
             location: {
                 type: 'Point',
                 coordinates: [{
-                    ts: new Date(req.body.ts),
+                    ts: new Date(req.body.start),
                     lat: startCoords[1],
                     long: startCoords[0]
                 }]
