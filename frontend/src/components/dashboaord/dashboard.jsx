@@ -1,6 +1,6 @@
 // import React from 'react';
-import ReactDOM from 'react-dom';
-import styles from './styles.module.css';
+import ReactDOM from "react-dom";
+import styles from "./styles.module.css";
 
 // class Dashboard extends React.Component{
 
@@ -23,7 +23,7 @@ import styles from './styles.module.css';
 //     onMouseDown = (e)=>{
 
 //         if (e.button !== 0) return
-//         // var computedStyle = window.getComputedStyle(ReactDOM.findDOMNode); 
+//         // var computedStyle = window.getComputedStyle(ReactDOM.findDOMNode);
 //         // var pos = $(this.getDOMNode()).offset()
 //         var pos = ReactDOM.findDOMNode().getBoundingClientRect();
 //         this.setState({
@@ -64,8 +64,8 @@ import styles from './styles.module.css';
 //     }
 // }
 
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
 export default function Dashboard(props) {
   const {
@@ -85,25 +85,25 @@ export default function Dashboard(props) {
 
     onPointerDown(e);
   };
-  
+
   const handlePointerUp = (e) => {
     setIsDragging(false);
-    
+
     onPointerUp(e);
   };
-  
+
   const handlePointerMove = (e) => {
     if (isDragging) onDragMove(e);
-    
+
     onPointerMove(e);
   };
 
   useEffect(() => {
-    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener("pointerup", handlePointerUp);
 
     return () => {
-      window.removeEventListener('pointerup', handlePointerUp);
-    }
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
   }, []);
 
   console.log(styles.dashboard);
@@ -130,7 +130,7 @@ Dashboard.propTypes = {
   children: element,
   style: shape({}),
   className: string,
-}
+};
 
 Dashboard.defaultProps = {
   onPointerDown: () => {},

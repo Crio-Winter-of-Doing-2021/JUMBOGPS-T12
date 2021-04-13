@@ -18,9 +18,13 @@ import {
 import DrawControl from "react-mapbox-gl-draw";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import turf from "@turf/turf";
-import { DownOutlined, UserOutlined,ClearOutlined } from "@ant-design/icons";
+import { DownOutlined, UserOutlined, ClearOutlined } from "@ant-design/icons";
 import Map from "../map/map";
-import { fetchAssets, fetchAssetDetails,addgeofence } from "../../api/apli-client";
+import {
+  fetchAssets,
+  fetchAssetDetails,
+  addgeofence,
+} from "../../api/apli-client";
 import { connect } from "react-redux";
 import styles from "./styles.module.css";
 import { socket } from "../home/home";
@@ -60,8 +64,8 @@ export class Layout extends React.Component {
       geoJSONLine: null,
       assetTypeFilter: null,
       addGeoFence: null,
-      expectedTravelRoute:null,
-      geofence:null
+      expectedTravelRoute: null,
+      geofence: null,
     };
   }
 
@@ -120,26 +124,29 @@ export class Layout extends React.Component {
 
     let results = await fetchAssetDetails(findAsset);
     if (results.status === 200) {
-      if(results.data.coordinates.length > 0){
-
+      if (results.data.coordinates.length > 0) {
         let assetGeoJson = this.formatToGeoJson(results.data);
-        let assetGeoJsonLine = this.formatToGeoJSONLine(results.data.coordinates);
-        let expectedGeoRoute = this.formatToGeoJSONLine(results.data.defaultRoute);
-  
+        let assetGeoJsonLine = this.formatToGeoJSONLine(
+          results.data.coordinates
+        );
+        let expectedGeoRoute = this.formatToGeoJSONLine(
+          results.data.defaultRoute
+        );
+
         this.props.addAssetDetails(assetGeoJson);
-        this.setState({ geoJSONLine: assetGeoJsonLine, expectedTravelRoute:expectedGeoRoute, geofence:results.data.geofence });
+        this.setState({
+          geoJSONLine: assetGeoJsonLine,
+          expectedTravelRoute: expectedGeoRoute,
+          geofence: results.data.geofence,
+        });
       } else {
-        message.error(
-          "Asset location is not updated in 24 hours"
-        );
+        message.error("Asset location is not updated in 24 hours");
       }
-
-      } else{
-        message.error(
-          "Asset not available, Please contact your support if this is not expected"
-        );
-      }
-
+    } else {
+      message.error(
+        "Asset not available, Please contact your support if this is not expected"
+      );
+    }
   };
   dateChangeHandler = (e) => {
     if (e && e.length == 2) {
@@ -189,7 +196,12 @@ export class Layout extends React.Component {
   }
 
   resetBtnHandler = async () => {
-    this.setState({ findAsset: null, geoJSONLine:null, geofence:null, assetTypeFilter:null });
+    this.setState({
+      findAsset: null,
+      geoJSONLine: null,
+      geofence: null,
+      assetTypeFilter: null,
+    });
     let assetDetails = await fetchAssets();
     assetDetails = this.getAllAssetDetails(assetDetails);
     this.props.addAssetDetails(assetDetails);
@@ -199,14 +211,21 @@ export class Layout extends React.Component {
     let assetGeoJson = null;
     let results = null;
     const { assetDetails } = this.props;
-    const { findAsset, dateFilter, numberOfAssetsToDisplay, assetTypeFilter } = this.state;
-    if(assetTypeFilter){
-      if(assetTypeFilter !== prevState.assetTypeFilter){
+    const {
+      findAsset,
+      dateFilter,
+      numberOfAssetsToDisplay,
+      assetTypeFilter,
+    } = this.state;
+    if (assetTypeFilter) {
+      if (assetTypeFilter !== prevState.assetTypeFilter) {
         this.setState({ geoJSONLine: null });
         let assetDetails = await fetchAssets();
         assetDetails = this.getAllAssetDetails(assetDetails);
 
-        let assetsToDisplay = assetDetails.features.filter((asset)=>asset.properties.assetType===assetTypeFilter);
+        let assetsToDisplay = assetDetails.features.filter(
+          (asset) => asset.properties.assetType === assetTypeFilter
+        );
         let assetGeoJson = {
           type: "FeatureCollection",
           features: assetsToDisplay,
@@ -335,81 +354,76 @@ export class Layout extends React.Component {
     return assetGeoJson;
   };
 
+  //   menu = ()=>{
+  //     return(
+  //       <Menu onClick={this.handleMenuClick}>{this.menuChildren}</Menu>
+  //     )
+  //   }
 
-//   menu = ()=>{
-//     return(
-//       <Menu onClick={this.handleMenuClick}>{this.menuChildren}</Menu>
-//     )
-//   }
+  //   menuChildren = ()=>{ this.state.assetTypes.map((_, index)=>(
+  //         <Menu.Item key="index" icon={<UserOutlined />}>
+  //           Delivery Boy
+  //         </Menu.Item>
 
-  
+  //   ))
 
-//   menuChildren = ()=>{ this.state.assetTypes.map((_, index)=>(
-//         <Menu.Item key="index" icon={<UserOutlined />}>
-//           Delivery Boy
-//         </Menu.Item>
+  // }
 
-
-//   ))
-
-// }
-
-
-
-
-
-
-  addGeoFenceHandler = (data)=>{
-    this.setState({addGeoFence:data});
-  }
+  addGeoFenceHandler = (data) => {
+    this.setState({ addGeoFence: data });
+  };
 
   handleDropDownMenuClick = (e) => {
     console.log("click", e);
   };
 
-  handleMenuClick = (e)=> {
-    if(e.key!=="Reset"){
-      this.setState({assetTypeFilter:e.key});
-    } else{
-      this.setState({assetTypeFilter:null})
+  handleMenuClick = (e) => {
+    if (e.key !== "Reset") {
+      this.setState({ assetTypeFilter: e.key });
+    } else {
+      this.setState({ assetTypeFilter: null });
     }
+  };
 
-  }
-
-  submitgeoFenceData = (id)=>{
-    addgeofence(id,this.state.addGeoFence);
-    this.setState({addGeoFence:null});
-  }
+  submitgeoFenceData = (id) => {
+    addgeofence(id, this.state.addGeoFence);
+    this.setState({ addGeoFence: null });
+  };
   render() {
     const { handleDragMove, dateChangeHandler } = this;
-    const { translate, numberOfAssetsToDisplay, findAsset, geoJSONLine, geofence, expectedTravelRoute } = this.state;
-    const { assetDetails,allAssetStore } = this.props;
+    const {
+      translate,
+      numberOfAssetsToDisplay,
+      findAsset,
+      geoJSONLine,
+      geofence,
+      expectedTravelRoute,
+    } = this.state;
+    const { assetDetails, allAssetStore } = this.props;
 
     // const uniqueAssetTypes = assetDetails.features ? assetDetails.features.filter((value, index,self)=>{
     //   return self.indexOf(value) === index
     // }):null
     // console.log(uniqueAssetTypes);
-    const allAssetTypes = allAssetStore ? allAssetStore.features.map((value, index)=>{
-      return value.properties.assetType
-    }):'';
-    const uniqueAssetTypes = [... new Set(allAssetTypes)];
-    const menus = uniqueAssetTypes ? uniqueAssetTypes.map((key, index) => {
-      return (
-        <Menu.Item name={key} key={key} icon={<UserOutlined />}>
-
-          {key}
-        </Menu.Item>
-      )
-    }):console.log("State is null");
+    const allAssetTypes = allAssetStore
+      ? allAssetStore.features.map((value, index) => {
+          return value.properties.assetType;
+        })
+      : "";
+    const uniqueAssetTypes = [...new Set(allAssetTypes)];
+    const menus = uniqueAssetTypes
+      ? uniqueAssetTypes.map((key, index) => {
+          return (
+            <Menu.Item name={key} key={key} icon={<UserOutlined />}>
+              {key}
+            </Menu.Item>
+          );
+        })
+      : console.log("State is null");
 
     const menu = () => {
-      return (
-        <Menu onClick={this.handleMenuClick}>
-      
-          {menus}
-        </Menu>
-      )
-    }
+      return <Menu onClick={this.handleMenuClick}>{menus}</Menu>;
+    };
 
     return (
       <div className="layout-container">
@@ -429,7 +443,9 @@ export class Layout extends React.Component {
                     onClick={this.handleDropDownMenuClick}
                     overlay={menu}
                   >
-                    {this.state.assetTypeFilter? this.state.assetTypeFilter:'Asset Type'}
+                    {this.state.assetTypeFilter
+                      ? this.state.assetTypeFilter
+                      : "Asset Type"}
                   </Dropdown.Button>
                 </Col>
                 <Col span={12}>
@@ -453,53 +469,54 @@ export class Layout extends React.Component {
           <RangePicker onCalendarChange={dateChangeHandler} showTime />
           <Row>
             <Col span={18}>
-          <Slider
-            min={1}
-            max={100}
-            onChange={this.sliderOnChangeHandler}
-            value={
-              typeof numberOfAssetsToDisplay === "number"
-                ? numberOfAssetsToDisplay
-                : 0
-            }
-          />
-          </Col>
+              <Slider
+                min={1}
+                max={100}
+                onChange={this.sliderOnChangeHandler}
+                value={
+                  typeof numberOfAssetsToDisplay === "number"
+                    ? numberOfAssetsToDisplay
+                    : 0
+                }
+              />
+            </Col>
 
-          <Col span={4}>
-          <InputNumber
-            min={1}
-            max={100}
-            style={{ margin: "0 16px" }}
-            value={numberOfAssetsToDisplay}
-            onChange={this.sliderOnChangeHandler}
-          />
-          </Col>
+            <Col span={4}>
+              <InputNumber
+                min={1}
+                max={100}
+                style={{ margin: "0 16px" }}
+                value={numberOfAssetsToDisplay}
+                onChange={this.sliderOnChangeHandler}
+              />
+            </Col>
           </Row>
 
-          {this.state.addGeoFence ? (          <Row>
-          <Col span={24}>
-            <Input.Group compact>
-               <Search
-                placeholder="Submit GeoFence assetID"
-                allowClear
-                enterButton="Submit"
-                size="middle"
-                onSearch={this.submitgeoFenceData}
-              />
-            </Input.Group>
-          </Col>
-          </Row>):''}
-
+          {this.state.addGeoFence ? (
+            <Row>
+              <Col span={24}>
+                <Input.Group compact>
+                  <Search
+                    placeholder="Submit GeoFence assetID"
+                    allowClear
+                    enterButton="Submit"
+                    size="middle"
+                    onSearch={this.submitgeoFenceData}
+                  />
+                </Input.Group>
+              </Col>
+            </Row>
+          ) : (
+            ""
+          )}
         </Dashboard>
         <div style={{ width: "95%", float: "right" }}>
           <Map
-          timelineviewData = {
-           {
-            geoJSONLine:geoJSONLine,
-            geofence:geofence,
-            expectedTravelRoute:expectedTravelRoute
-           }
-          }
+            timelineviewData={{
+              geoJSONLine: geoJSONLine,
+              geofence: geofence,
+              expectedTravelRoute: expectedTravelRoute,
+            }}
             viewTimelineView={this.viewTimelineView}
             geoJSONLine={this.state.geoJSONLine}
             ref={this.mapRef}
@@ -522,8 +539,7 @@ export class Layout extends React.Component {
 function mapStateToProps(state) {
   return {
     assetDetails: state.assetDetails,
-    allAssetStore:state.allAssetStore
-    
+    allAssetStore: state.allAssetStore,
   };
 }
 const mapDispatchToProps = (dispatch) => {

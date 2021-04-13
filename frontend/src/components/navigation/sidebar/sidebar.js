@@ -44,11 +44,7 @@ function Sidebar(props) {
               />{" "}
             </NavLink>
 
-            <NavLink
-              to='/map'
-              img={navItem.img}
-              activeImg={navItem.activeImg}
-            >
+            <NavLink to="/map" img={navItem.img} activeImg={navItem.activeImg}>
               {" "}
               <CompassOutlined
                 style={{

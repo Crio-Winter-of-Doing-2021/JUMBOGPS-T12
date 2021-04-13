@@ -75,7 +75,6 @@ class Map extends React.Component {
   async componentDidUpdate() {
     const map = this.map;
     if (this.shouldComponentUpdate) {
-
       const { assetsToDisplay, geoJSONLine, timelineviewData } = this.props;
       if (assetsToDisplay) {
         if (this.map.getSource("random-points-data")) {
@@ -124,14 +123,13 @@ class Map extends React.Component {
             this.map.removeSource("route");
           }
         }
-
       }
 
-      if(timelineviewData.expectedTravelRoute){
-        debugger
-        let expectedTravelRoute = timelineviewData.expectedTravelRoute
+      if (timelineviewData.expectedTravelRoute) {
+        debugger;
+        let expectedTravelRoute = timelineviewData.expectedTravelRoute;
         if (!this.map.getSource("expectedTravelRoute")) {
-          debugger
+          debugger;
           this.map.addSource("expectedTravelRoute", {
             ...expectedTravelRoute,
           });
@@ -149,8 +147,9 @@ class Map extends React.Component {
             },
           });
         } else {
-
-          this.map.getSource("expectedTravelRoute").setData(timelineviewData.expectedTravelRoute.data);
+          this.map
+            .getSource("expectedTravelRoute")
+            .setData(timelineviewData.expectedTravelRoute.data);
           /**
            * Do not pan to last location
            */
@@ -161,19 +160,15 @@ class Map extends React.Component {
           // );
         }
         debugger;
-        if(timelineviewData.geofence){
-
-          if(!this.map.getSource('maine')){
+        if (timelineviewData.geofence) {
+          if (!this.map.getSource("maine")) {
             this.drawPolygon(timelineviewData.geofence);
           }
-
-        } else{
-          if(this.map.getSource('maine')){
+        } else {
+          if (this.map.getSource("maine")) {
             this.map.removeLayer("maine").removeSource("maine");
           }
-      
         }
-
       }
     }
   }
@@ -425,12 +420,12 @@ class Map extends React.Component {
 
   createArea = (e) => {
     debugger;
-    const {addGeoFence} = this.props
+    const { addGeoFence } = this.props;
     let data = draw.getAll();
     const polygonData = data.features[0].geometry.coordinates;
     debugger;
     addGeoFence(polygonData);
-    message.info("Please submit the geojson asset ID from dashboard filter")
+    message.info("Please submit the geojson asset ID from dashboard filter");
     this.drawPolygon(polygonData);
     this.polygonDataCalc(data);
   };
@@ -449,9 +444,9 @@ class Map extends React.Component {
       "</h4>";
   };
 
-  deleteArea =  ()=>{
+  deleteArea = () => {
     this.map.removeLayer("maine").removeSource("maine");
-  }
+  };
   updateArea = (e) => {
     console.log(e);
     let data = draw.getAll();
