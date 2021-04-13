@@ -57,7 +57,6 @@ export class Layout extends React.Component {
       },
       findAsset: null,
       dateFilter: null,
-      assetTypes: ["Delivery Truck"],
       geoJSONLine: null,
       assetTypes: ["truck", "deliveryAsset"],
       assetTypeFilter: null,
@@ -335,16 +334,29 @@ export class Layout extends React.Component {
     return assetGeoJson;
   };
 
-  menu = (
-    <Menu onClick={this.handleMenuClick}>
-      <Menu.Item key="1" icon={<UserOutlined />}>
-        truck
-      </Menu.Item>
-      <Menu.Item key="2" icon={<UserOutlined />}>
-        Delivery Boy
-      </Menu.Item>
-    </Menu>
-  );
+
+//   menu = ()=>{
+//     return(
+//       <Menu onClick={this.handleMenuClick}>{this.menuChildren}</Menu>
+//     )
+//   }
+
+  
+
+//   menuChildren = ()=>{ this.state.assetTypes.map((_, index)=>(
+//         <Menu.Item key="index" icon={<UserOutlined />}>
+//           Delivery Boy
+//         </Menu.Item>
+
+
+//   ))
+
+// }
+
+
+
+
+
 
   addGeoFenceHandler = (data)=>{
     debugger;
@@ -352,7 +364,6 @@ export class Layout extends React.Component {
   }
 
   handleDropDownMenuClick = (e) => {
-    message.info("Click on menu item.");
     console.log("click", e);
   };
 
@@ -369,6 +380,22 @@ export class Layout extends React.Component {
     const { handleDragMove, dateChangeHandler } = this;
     const { translate, numberOfAssetsToDisplay, findAsset, geoJSONLine, geofence, expectedTravelRoute } = this.state;
     const { assetDetails } = this.props;
+    const menus = this.state ? assetDetails.features.map((key) => {
+      return (
+        <Menu.Item key={key[0]} icon={<UserOutlined />}>
+          {key.properties.assetType}
+        </Menu.Item>
+      )
+    }):console.log("State is null");
+
+    const menu = () => {
+      return (
+        <Menu onClick={this.handleMenuClick}>
+          {menus}
+        </Menu>
+      )
+    }
+
     return (
       <div className="layout-container">
         <Dashboard
@@ -385,7 +412,7 @@ export class Layout extends React.Component {
                 <Col span={8}>
                   <Dropdown.Button
                     onClick={this.handleDropDownMenuClick}
-                    overlay={this.menu}
+                    overlay={menu}
                   >
                     Asset Type
                   </Dropdown.Button>

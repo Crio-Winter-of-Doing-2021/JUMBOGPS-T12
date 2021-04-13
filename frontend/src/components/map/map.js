@@ -151,11 +151,14 @@ class Map extends React.Component {
         } else {
 
           this.map.getSource("expectedTravelRoute").setData(timelineviewData.expectedTravelRoute.data);
-          this.map.panTo(
-            timelineviewData.expectedTravelRoute.data.geometry.coordinates[
-              timelineviewData.expectedTravelRoute.data.geometry.coordinates.length - 1
-            ]
-          );
+          /**
+           * Do not pan to last location
+           */
+          // this.map.panTo(
+          //   timelineviewData.expectedTravelRoute.data.geometry.coordinates[
+          //     timelineviewData.expectedTravelRoute.data.geometry.coordinates.length - 1
+          //   ]
+          // );
         }
         debugger;
         if(timelineviewData.geofence){
