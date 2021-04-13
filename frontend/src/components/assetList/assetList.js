@@ -7,16 +7,23 @@ import CreateAsset from "../createAsset/createAsset";
 import { addAsset } from "../../api/apli-client";
 
 class DashboardMainPage extends React.Component {
-  state = {
-    tableHeaders: [
-      "Asset ID",
-      "Plnned From",
-      "Planned To",
-      "Asset location",
-      "last timestamp",
-    ],
-    modalVisible: false,
-  };
+
+  constructor(){
+    super();
+
+    this.state = {
+      tableHeaders: [
+        "Asset ID",
+        "Plnned From",
+        "Planned To",
+        "Asset location",
+        "last timestamp",
+      ],
+      modalVisible: false,
+    };
+    this.addAssetRef = React.createRef();
+  }
+
 
   showModal = () => {
     this.setState({ modalVisible: true });
@@ -31,6 +38,7 @@ class DashboardMainPage extends React.Component {
   addAsset = (data) => {
     debugger;
     this.setState({ modalVisible: false });
+    addAsset(data);
   };
   render() {
     const { assetDetails } = this.props;
@@ -143,15 +151,17 @@ class DashboardMainPage extends React.Component {
           </div>
         </div>
 
-        <Modal
+        {/* <Modal
           title="Add Asset"
           visible={this.state.modalVisible}
           onOk={this.addAsset}
           // confirmLoading={confirmLoading}
           onCancel={this.closeModal}
         >
-          <CreateAsset />
-        </Modal>
+          <CreateAsset ref={this.addAssetRef} ></CreateAsset>
+        </Modal> */}
+
+  <CreateAsset onOk={this.addAsset} onCancel={this.closeModal} visible={this.state.modalVisible}  ref={this.addAssetRef} ></CreateAsset>
       </>
     );
   }

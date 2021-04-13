@@ -1,89 +1,92 @@
-import React, { Component } from "react";
-import { Form, Input, Button, Radio } from "antd";
+import React, { Component, useState } from "react";
+import { Form, Input, Button, Radio, Modal, DatePicker } from "antd";
+
 
 import { fetchUserDetails } from "../../api/apli-client";
 
-const AddAsset = () => {
-  //   componentDidMount() {
-  //     fetchUserDetails()
-  //       .then((res) => {
-  //         console.log(res);
-  //         this.setState({
-  //           user: res.data,
-  //         });
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       });
-  //   }
-
-  //   handleSubmit = (event) => {
-  //     event.preventDefault();
-  //   };
-
+const AddAsset = (props) => {
+const [assetId, updateAssetId] = useState(null);
+const [assetName, updateAssetName] = useState(null);
+const [assetType, updateAssetType] = useState(null);
+const [sourceCoordinates, updatesourceCoordinates] = useState(null);
+const [destinationCoordinates, updatedestinationCoordinates] = useState(null);
+const [endDate, updateendDate] = useState(null);
+    const handleSubmit = (event) => {
+      debugger;
+      event.preventDefault();
+    };
+    const handleOnChange = (event) => {
+      debugger;
+      event.preventDefault();
+    };
   const [form] = Form.useForm();
+  const currentDate  = ()=>{
+    var date = new Date();
+    let dateString = `${date.getUTCFullYear}-${date.getMonth}-${date.getDate}`
+    return dateString;
+  }
+  const data = {
+    id:assetId,
+    name:assetName,
+    type:assetType,
+    src:sourceCoordinates,
+    dest:destinationCoordinates,
+    start:new Date().getUTCFullYear()+'-'+ new Date().getMonth()+'-'+new Date().getDate(),
+    end:endDate,
+    ts:new Date()
+  }
 
+
+  const submit = ()=>{
+    updateAssetId(null);
+    updateAssetName(null)
+    updateAssetType(null);
+    updatesourceCoordinates(null);
+    updatedestinationCoordinates(null);
+
+    props.onOk(data);
+  }
+
+  const onDateChange = (date)=>{
+    debugger;
+    updateendDate(`${date._d.getUTCFullYear()}-${date._d.getMonth()}-${date._d.getDate()}`);
+  }
   return (
-    // <form onSubmit={this.handleSubmit}>
-    //     <h3>Add New Asset</h3>
 
-    //     <div className="form-group">
-    //         <label>Asset ID:</label>
-    //         <input type="text" className="form-control" placeholder="Asset ID..."
-    //         onChange={event => this.id = event.target.value}/>
-    //     </div>
-    //     <div className="form-group">
-    //         <label>Name:</label>
-    //         <input type="text" className="form-control" placeholder="Asset Name..."
-    //         onChange={event => this.name = event.target.value}/>
-    //     </div>
-    //     <div className="form-group">
-    //         <label>Asset Type:</label>
-    //         <input type="text" className="form-control" placeholder="Asset Type..."
-    //         onChange={event => this.type = event.target.value}/>
-    //     </div>
-    //     <div className="form-group">
-    //         <label>Password:</label>
-    //         <input type="password" className="form-control" placeholder="User password..."
-    //         onChange={event => this.password = event.target.value}/>
-    //     </div>
-    //     <div className="form-group">
-    //         <label>Confirm Password:</label>
-    //         <input type="password" className="form-control" placeholder="Confirm password..."
-    //         onChange={event => this.confirmPassword = event.target.value}/>
-    //     </div>
+    <Modal
+    title="Add Asset"
+    visible={props.visible}
+    onOk={submit}
+    // confirmLoading={confirmLoading}
+    onCancel={props.onCancel}
+  >
+    {/* <CreateAsset ref={this.addAssetRef} ></CreateAsset> */}
 
-    //     <button className="btn btn-primary btn-block">Add Asset</button>
-    // </form>
     <Form layout="vertical" form={form}>
       <Form.Item label="Asset ID">
-        <Input placeholder="Asset ID..." />
+        <Input onChange={(e)=>updateAssetId(e.target.value)} value={assetId} placeholder="Asset ID..." />
       </Form.Item>
       <Form.Item label="Asset Name">
-        <Input placeholder="Asset Name..." />
+        <Input onChange={(e)=>updateAssetName(e.target.value)} value={assetName} placeholder="Asset Name..." />
       </Form.Item>
       <Form.Item label="Asset Type">
-        <Input placeholder="Asset Name..." />
+        <Input onChange={(e)=>updateAssetType(e.target.value)} value={assetType} placeholder="Asset Name..." />
       </Form.Item>
       <Form.Item label="Source Coordinates">
-        <Input placeholder="Soruce Coordinates..." />
+        <Input  onChange={(e)=>updatesourceCoordinates(e.target.value)} value={sourceCoordinates}    placeholder="Soruce Coordinates..." />
       </Form.Item>
       <Form.Item label="Destination Coordinates">
-        <Input placeholder="Destination Coordinates..." />
+        <Input  onChange={(e)=>updatedestinationCoordinates(e.target.value)} value={destinationCoordinates} placeholder="Destination Coordinates..." />
       </Form.Item>
-      <Form.Item label="Start longitude">
-        <Input placeholder="Destination Coordinates..." />
+
+      <Form.Item label="End Date">
+      <DatePicker onChange={onDateChange} />
       </Form.Item>
-      {/* <Form.Item label="Start Latitidue">
-              <Input placeholder="Start Latitidue..." />
-            </Form.Item>
-            <Form.Item label="Start Latitidue">
-              <Input placeholder="Start Latitidue..." />
-            </Form.Item> */}
-      {/* <Form.Item >
-              <Button type="primary">Submit</Button>
-            </Form.Item> */}
+
     </Form>
+  </Modal>
+
+    
   );
 };
 
