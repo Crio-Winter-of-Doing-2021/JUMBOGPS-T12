@@ -51,11 +51,11 @@ const AssetSchema = mongoose.Schema({
         },
         start: {
             type: Date,
-            required: true
+            required: false
         },
         end: {
             type: Date,
-            required: true
+            required: false
         },
         default: {
             type: [[Number]],
