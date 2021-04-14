@@ -345,7 +345,7 @@ exports.updateOne = (req, res) => {
 
                                 var pt = turf.point([latestLocation.long,latestLocation.lat]);
                         
-                                if(asset.geofence.lenght>0){
+                                if(asset.geofence.length>0){
                                     var polygon = turf.polygon(asset.geofence.toObject());
                                     var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
                                     if (!isPointOnPolygon) {  // geofence check error

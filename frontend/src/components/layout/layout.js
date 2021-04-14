@@ -181,13 +181,20 @@ export class Layout extends React.Component {
     });
 
     socket.on("updated-location-details", (res) => {
+      debugger;
       let assetGeoJson = this.formatToGeoJson(res.data);
       let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
       this.setState({ geoJSONLine: assetGeoJsonLine });
       this.props.addAssetDetails(assetGeoJson);
     });
     socket.on("OUT OF GEOFENCE", (res) => {
+      debugger;
       message.error(`${res.data} asset is out of geofence`);
+    });
+
+    socket.on("DEVIATING FROM ROUTE", (res) => {
+      debugger;
+      message.error(`${res.data} is deviating from route`);
     });
     let assetDetails = await fetchAssets();
     assetDetails = this.getAllAssetDetails(assetDetails);

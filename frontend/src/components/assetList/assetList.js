@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { Button, Modal } from "antd";
 import CreateAsset from "../createAsset/createAsset";
+import AddUser from '../adduser/addUser';
 import { addAsset } from "../../api/apli-client";
 
 class DashboardMainPage extends React.Component {
@@ -19,25 +20,34 @@ class DashboardMainPage extends React.Component {
         "Asset location",
         "last timestamp",
       ],
-      modalVisible: false,
+      assetModalVisible: false,
+      userModalVisible:false
     };
     this.addAssetRef = React.createRef();
   }
 
 
-  showModal = () => {
-    this.setState({ modalVisible: true });
+  showAssetModal = () => {
+    this.setState({ assetModalVisible: true });
   };
-  closeModal = () => {
-    this.setState({ modalVisible: false });
+  closeAssetModal = () => {
+    this.setState({ assetModalVisible: false });
   };
+
+  showUserModal = ()=>{
+    this.setState({ userModalVisible: true });
+  }
+
+  closeUserModal = ()=>{
+    this.setState({ userModalVisible: false });
+  }
 
   componentDidMount() {
     console.log(this.props.assetDetails);
   }
   addAsset = (data) => {
     debugger;
-    this.setState({ modalVisible: false });
+    this.setState({ assetModalVisible: false });
     addAsset(data);
   };
   render() {
@@ -47,10 +57,16 @@ class DashboardMainPage extends React.Component {
       <>
         <div className={styles["main-container"] + " assetListContainer"}>
           <div style={{ textAlign: "left", margin: "10px" }}>
-            <Button type="primary" onClick={this.showModal}>
+            <Button type="primary" onClick={this.showAssetModal}>
               Add asset
             </Button>
+
+            <Button style={{margin:'10px'}} type="primary" onClick={this.showUserModal}>
+              Add User
+            </Button>
           </div>
+
+          
 
           <div className={styles["col"]}>
             <div className={styles["card"] + " " + styles["shadow"]}>
@@ -153,15 +169,16 @@ class DashboardMainPage extends React.Component {
 
         {/* <Modal
           title="Add Asset"
-          visible={this.state.modalVisible}
+          visible={this.state.assetModalVisible}
           onOk={this.addAsset}
           // confirmLoading={confirmLoading}
-          onCancel={this.closeModal}
+          onCancel={this.closeAssetModal}
         >
           <CreateAsset ref={this.addAssetRef} ></CreateAsset>
         </Modal> */}
 
-  <CreateAsset onOk={this.addAsset} onCancel={this.closeModal} visible={this.state.modalVisible}  ref={this.addAssetRef} ></CreateAsset>
+  <CreateAsset onOk={this.addAsset} onCancel={this.closeAssetModal} visible={this.state.assetModalVisible}  ref={this.addAssetRef} ></CreateAsset>
+  <AddUser onOk={this.addAsset} onCancel={this.closeUserModal} visible={this.state.userModalVisible}  ref={this.addAssetRef} ></AddUser>
       </>
     );
   }
