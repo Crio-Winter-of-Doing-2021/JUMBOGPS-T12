@@ -62,7 +62,7 @@ This project shall implement a dashboard showing the assets (can be delivery tru
 * * *
 
 
-# Mapbox Proof Of Concept
+# Mapbox PoC
 
 ## Introduction
 
