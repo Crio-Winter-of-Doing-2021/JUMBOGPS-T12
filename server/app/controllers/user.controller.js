@@ -18,8 +18,8 @@ exports.create = (req, res) => {
 
     try {
         // verifying if current user is admin or not
-        const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
-        if (user.type !== 'Admin') throw 'Unauthorized access';
+        // const user = jwt.verify(req.headers.token, jwtConfig.JWT_SECRET);
+        // if (user.type !== 'Admin') throw 'Unauthorized access';
 
         const newUser = new User({
             id: req.body.id,
@@ -37,8 +37,9 @@ exports.create = (req, res) => {
             res.status(500).send({message: err.message || 'Some error in creating new user data'}); // error handling
         });
         
-    } catch (error) {        
-        res.status(401).send({ message: 'Unauthorized access' });
+    } 
+    catch (error) {        
+        res.status(500).send({ message: 'Internal error' });
     }
 };
 

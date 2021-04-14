@@ -9,9 +9,6 @@ import {
 import { message } from "antd";
 import { connect } from "react-redux";
 import { compose } from "redux";
-
-import { config } from "./config";
-
 import styles from "./styles.module.css";
 function Sidebar(props) {
   const handleLogout = () => {
@@ -21,30 +18,23 @@ function Sidebar(props) {
     props.storeLoginUser(null);
     message.success("User logged out", 5);
   };
-
-  debugger;
-
   return (
-    <nav className={styles["nav"]}>
-      <ul className={styles["nav-list"]}>
-        {config.map((navItem) => (
-          <li key={`${navItem.name} ${navItem.route}`}>
-            <NavLink
-              to={navItem.route}
-              img={navItem.img}
-              activeImg={navItem.activeImg}
-            >
-              {" "}
-              <UnorderedListOutlined
-                style={{
-                  color: `white`,
-                  fontSize: "32px",
-                  "margin-top": "50px",
-                }}
-              />{" "}
-            </NavLink>
+    <nav className={styles["navigation"]}>
+      <ul className={styles["navigation-list"]}>
+        <li>
+          <NavigationLink to="/assetList">
+            {" "}
+            <UnorderedListOutlined
+              style={{
+                color: `white`,
+                fontSize: "32px",
+                "margin-top": "50px",
+              }}
+            />{" "}
+          </NavigationLink>
 
-            <NavLink to="/map" img={navItem.img} activeImg={navItem.activeImg}>
+          {props.username ? (
+            <NavigationLink to="/map">
               {" "}
               <CompassOutlined
                 style={{
@@ -53,9 +43,11 @@ function Sidebar(props) {
                   "margin-top": "5px",
                 }}
               />{" "}
-            </NavLink>
-          </li>
-        ))}
+            </NavigationLink>
+          ) : (
+            ""
+          )}
+        </li>
       </ul>
       {props.username ? (
         <LogoutOutlined
@@ -70,20 +62,11 @@ function Sidebar(props) {
   );
 }
 
-function NavLink({ to, img, activeImg, content, ...props }) {
-  // const match = useRouteMatch({path: to});
-  const match = "";
+
+function NavigationLink({ to, ...props }) {
   return (
-    <Link
-      to={to}
-      className={`${styles["nav-link"]} ${
-        match ? styles["nav-link-active"] : ""
-      }`}
-      {...props}
-    >
+    <Link to={to} className={`${styles["navigation-link"]}`} {...props}>
       {props.children}
-      <img src={match ? activeImg : img} alt="" />
-      {<div className={styles["nav-link-content"]}>{content}</div>}
     </Link>
   );
 }
@@ -106,5 +89,3 @@ export default compose(
   withRouter,
   connect(mapStateToProps, mapDispatchToProps)
 )(Sidebar);
-
-// export default withRouter(Sidebar)

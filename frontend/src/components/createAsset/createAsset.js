@@ -1,8 +1,6 @@
-import React, { Component, useState } from "react";
-import { Form, Input, Button, Radio, Modal, DatePicker } from "antd";
+import React, { useState } from "react";
+import { Form, Input , Modal, DatePicker } from "antd";
 
-
-import { fetchUserDetails } from "../../api/apli-client";
 
 const AddAsset = (props) => {
 const [assetId, updateAssetId] = useState(null);
@@ -11,20 +9,10 @@ const [assetType, updateAssetType] = useState(null);
 const [sourceCoordinates, updatesourceCoordinates] = useState(null);
 const [destinationCoordinates, updatedestinationCoordinates] = useState(null);
 const [endDate, updateendDate] = useState(null);
-    const handleSubmit = (event) => {
-      debugger;
-      event.preventDefault();
-    };
-    const handleOnChange = (event) => {
-      debugger;
-      event.preventDefault();
-    };
+
+
   const [form] = Form.useForm();
-  const currentDate  = ()=>{
-    var date = new Date();
-    let dateString = `${date.getUTCFullYear}-${date.getMonth}-${date.getDate}`
-    return dateString;
-  }
+
   const data = {
     id:assetId,
     name:assetName,

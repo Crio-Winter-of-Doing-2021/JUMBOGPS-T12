@@ -1,4 +1,4 @@
-.nav {
+.navigation {
     position: fixed;
     background-color: #3d3f42;
     height: 100vh;
@@ -6,31 +6,19 @@
     width: 5%;
     top: 0;
   }
-  
-  .hamburger-icon {
-    margin: 16px auto;
-    margin-bottom: 100px;
-    display: none;
-  
-  }
-  
-  .nav-list {
+  .navigation-list {
     margin: 0;
     padding: 0;
   }
   
-  .nav-link {
+  .navigation-link {
     display: flex;
     padding: 20px;
     text-decoration: none;
     color: white;
   }
   
-  .nav-link-active {
-    background-color: #252729;
-  }
-  
-  .nav-link-content {
+  .navigation-link-content {
     margin-left: 10px;
   }
 

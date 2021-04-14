@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { registerUser } from "../../api/apli-client";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 
 class Register extends Component {
   /**
@@ -35,12 +35,14 @@ class Register extends Component {
         password: this.password,
       };
 
+    
       registerUser(userData)
         .then((res) => {
-          console.log(res);
+         this.props.history.push('/login')
+         message.success('User registration successful')
         })
         .catch((error) => {
-          console.log(error);
+        message.error('User registration failed')
         });
     }
   };
@@ -69,7 +71,7 @@ class Register extends Component {
             <Input
               className="input-field"
               prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Asset Type"
+              placeholder="User Type"
               onChange={(event) => (this.type = event.target.value)}
             />
 

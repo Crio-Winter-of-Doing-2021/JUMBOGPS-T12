@@ -30,6 +30,7 @@ export const loginUser = (user) => {
 };
 
 export const registerUser = (user) => {
+
     return axios.post('api/users/register', user);
 };
 

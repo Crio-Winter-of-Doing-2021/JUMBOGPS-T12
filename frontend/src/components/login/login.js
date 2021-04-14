@@ -1,7 +1,7 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Input, message } from "antd";
 import React from "react";
-import { withRouter } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { loginUser } from "../../api/apli-client";
 import { connect } from "react-redux";
 
@@ -89,6 +89,17 @@ class Login extends React.Component {
             >
               Login
             </Button>
+             
+            <Button style={{margin:'10px'}}
+              loading={this.state.loading}
+              type="primary"
+              onClick={this.handleSubmit}
+            >
+              <Link to ='register'> 
+            New User..?
+            </Link>
+            </Button>
+           
           </div>
         </div>
       </>

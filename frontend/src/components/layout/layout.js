@@ -181,15 +181,39 @@ export class Layout extends React.Component {
     });
 
     socket.on("updated-location-details", (res) => {
-      debugger;
+      console.log('updated message recvd.');
       let assetGeoJson = this.formatToGeoJson(res.data);
       let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
       this.setState({ geoJSONLine: assetGeoJsonLine });
       this.props.addAssetDetails(assetGeoJson);
     });
+    /**
+     * Extra code added here
+     */
     socket.on("OUT OF GEOFENCE", (res) => {
-      debugger;
-      message.error(`${res.data} asset is out of geofence`);
+      console.log('out of geofence ' + res.data);
+      let assetGeoJson = this.formatToGeoJson(res.data);
+      let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
+      this.setState({ geoJSONLine: assetGeoJsonLine });
+      this.props.addAssetDetails(assetGeoJson);
+      // message.error(`${res.data} asset is out of geofence`);
+      message.error(`Asset is out of geofence`);
+    });
+    socket.on("DEVIATING FROM ROUTE", (res) => {
+      console.log('out of geofence ' + res.data);
+      let assetGeoJson = this.formatToGeoJson(res.data);
+      let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
+      this.setState({ geoJSONLine: assetGeoJsonLine });
+      this.props.addAssetDetails(assetGeoJson);
+      message.error(`Asset is off route`);
+    });
+
+    socket.on("DEVIATING FROM ROUTE; OUT OF GEOFENCE", (res) => {      
+      let assetGeoJson = this.formatToGeoJson(res.data);
+      let assetGeoJsonLine = this.formatToGeoJSONLine(res.data.coordinates);
+      this.setState({ geoJSONLine: assetGeoJsonLine });
+      this.props.addAssetDetails(assetGeoJson);
+      message.error(`Asset is off route and out of geofence`);
     });
 
     socket.on("DEVIATING FROM ROUTE", (res) => {

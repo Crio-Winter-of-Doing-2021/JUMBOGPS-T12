@@ -1,31 +1,28 @@
 import React from "react";
 import styles from "./styles.module.css";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Button, Modal } from "antd";
+import { Button, message } from "antd";
 import CreateAsset from "../createAsset/createAsset";
-import AddUser from '../adduser/addUser';
 import { addAsset } from "../../api/apli-client";
 
 class DashboardMainPage extends React.Component {
-
-  constructor(){
+  constructor() {
     super();
 
     this.state = {
       tableHeaders: [
         "Asset ID",
+        "Asset Name",
         "Plnned From",
         "Planned To",
         "Asset location",
-        "last timestamp",
+        "Progress",
       ],
       assetModalVisible: false,
-      userModalVisible:false
+      userModalVisible: false,
     };
     this.addAssetRef = React.createRef();
   }
-
 
   showAssetModal = () => {
     this.setState({ assetModalVisible: true });
@@ -34,15 +31,18 @@ class DashboardMainPage extends React.Component {
     this.setState({ assetModalVisible: false });
   };
 
-  showUserModal = ()=>{
+  showUserModal = () => {
     this.setState({ userModalVisible: true });
-  }
+  };
 
-  closeUserModal = ()=>{
+  closeUserModal = () => {
     this.setState({ userModalVisible: false });
-  }
+  };
 
   componentDidMount() {
+    if (!this.props.username) {
+      message.info("For viewing and tracking in map. Please login");
+    }
     console.log(this.props.assetDetails);
   }
   addAsset = (data) => {
@@ -60,29 +60,14 @@ class DashboardMainPage extends React.Component {
             <Button type="primary" onClick={this.showAssetModal}>
               Add asset
             </Button>
-
-            <Button style={{margin:'10px'}} type="primary" onClick={this.showUserModal}>
-              Add User
-            </Button>
           </div>
+          <div>
+            <div>
+              <div>
+                <h3>All Assets List</h3>
+                <div></div>
 
-          
-
-          <div className={styles["col"]}>
-            <div className={styles["card"] + " " + styles["shadow"]}>
-              <div className={styles["card-header"]}>
-                <h3 className={styles["mb-0"]}>All Assets List</h3>
-                <div className={styles["table-responsive"]}></div>
-
-                <table
-                  className={
-                    styles["table"] +
-                    " " +
-                    styles["align-items-center"] +
-                    " " +
-                    styles["table-flush"]
-                  }
-                >
+                <table className={styles["table"]}>
                   <thead className={styles["thead-light"]}>
                     <tr>
                       {/* Capture table header via props and render it */}
@@ -100,18 +85,8 @@ class DashboardMainPage extends React.Component {
                             if (index === 0) {
                               return (
                                 <th scope="row">
-                                  <div
-                                    className={
-                                      styles["media align-items-center"]
-                                    }
-                                  >
-                                    <a
-                                      to={`/suite?id`}
-                                      class={
-                                        styles["avatar rounded-circle mr-3"]
-                                      }
-                                    >
-                                      {/* <img alt="Image placeholder" src="https://raw.githack.com/creativetimofficial/argon-dashboard/master/assets/img/theme/bootstrap.jpg"></img> */}
+                                  <div>
+                                    <a href="#">
                                       <div
                                         onClick={() =>
                                           this.props.onNameClickHandler(
@@ -132,28 +107,16 @@ class DashboardMainPage extends React.Component {
                             } else if (tableHeaders.length - 1 === index) {
                               return (
                                 <td>
-                                  <div
-                                    className={
-                                      styles["d-flex align-items-center"]
-                                    }
-                                  >
-                                    <span className={styles["mr-2"]}>50%</span>
-                                    <div>
-                                      <div className={styles["progress"]}>
-                                        {feature.properties.name}
-                                      </div>
-                                    </div>
+                                  <div>
+                                    <span>50%</span>
+                                    <div></div>
                                   </div>
                                 </td>
                               );
                             } else {
                               return (
                                 <td>
-                                  <span
-                                    className={styles["badge badge-dot mr-4"]}
-                                  >
-                                    <i className={styles["bg-warning"]}></i>{" "}
-                                  </span>
+                                  <span></span>
                                 </td>
                               );
                             }
@@ -167,18 +130,12 @@ class DashboardMainPage extends React.Component {
           </div>
         </div>
 
-        {/* <Modal
-          title="Add Asset"
-          visible={this.state.assetModalVisible}
+        <CreateAsset
           onOk={this.addAsset}
-          // confirmLoading={confirmLoading}
           onCancel={this.closeAssetModal}
-        >
-          <CreateAsset ref={this.addAssetRef} ></CreateAsset>
-        </Modal> */}
-
-  <CreateAsset onOk={this.addAsset} onCancel={this.closeAssetModal} visible={this.state.assetModalVisible}  ref={this.addAssetRef} ></CreateAsset>
-  <AddUser onOk={this.addAsset} onCancel={this.closeUserModal} visible={this.state.userModalVisible}  ref={this.addAssetRef} ></AddUser>
+          visible={this.state.assetModalVisible}
+          ref={this.addAssetRef}
+        ></CreateAsset>
       </>
     );
   }
@@ -187,6 +144,7 @@ class DashboardMainPage extends React.Component {
 function mapStateToProps(state) {
   return {
     assetDetails: state.allAssetStore,
+    username: state.username,
   };
 }
 

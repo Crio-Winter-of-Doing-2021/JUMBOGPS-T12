@@ -335,8 +335,7 @@ exports.updateOne = (req, res) => {
                 var yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000));
                      
                     Object.keys(clients).forEach((client)=>{               
-                        if(clients[client].timelineView){ 
-                            console.log("came here")
+                        if(clients[client].timelineView){                             
                             if(clients[client].assetID ===reqId){
                                 /**
                                  * Updated logic for geofence
@@ -344,24 +343,32 @@ exports.updateOne = (req, res) => {
                                 let latestLocation = getLatestLocation(asset.toObject());
 
                                 var pt = turf.point([latestLocation.long,latestLocation.lat]);
+                                var defaultRoute = turf.lineString(asset.route.default);
+
+                                var message = '';
+                                var data = getCoordsInRange(asset, yesterday, now);
                         
-                                if(asset.geofence.length>0){
-                                    var polygon = turf.polygon(asset.geofence.toObject());
+                                
+                                if (!turf.booleanPointOnLine(pt, defaultRoute)) {   // default route deviation check error
+                                    console.log("Route error");
+                                    message = 'DEVIATING FROM ROUTE';
+                                    // io.to(client).emit('DEVIATING FROM ROUTE', {data: reqId}); 
+                                } 
+                                if(asset.geofence.length > 0){
+                                    var polygon = turf.polygon(asset.geofence);
                                     var isPointOnPolygon = turf.booleanPointInPolygon(pt, polygon);
                                     if (!isPointOnPolygon) {  // geofence check error
-                                        io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
-                                            console.log("Data Asset")
-                                                                   
-                                    } 
-    
+                                        console.log("Geofence error");
+                                        message = (message !== '')? message+'; OUT OF GEOFENCE': 'OUT OF GEOFENCE';                                        
+                                        // io.to(client).emit('OUT OF GEOFENCE', {data:reqId}); 
+                                    }     
+                                }
+                                if (message === '') {
+                                    message = 'updated-location-details';                                    
+                                    // io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)});
                                 }
 
-                                var defaultRoute = turf.lineString(asset.route.default);
-                                if (!turf.booleanPointOnLine(pt, defaultRoute)) {   // default route deviation check error
-                                    io.to(client).emit('DEVIATING FROM ROUTE', {data: reqId}); 
-                                }
-
-                                io.to(client).emit('updated-location-details', {data:getCoordsInRange(asset, yesterday, now)});
+                                io.to(client).emit(message, {data: data}); 
                             }
                         }
                     });
