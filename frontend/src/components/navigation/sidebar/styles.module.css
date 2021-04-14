@@ -1,0 +1,33 @@
+.navigation {
+    position: fixed;
+    background-color: #3d3f42;
+    height: 100vh;
+    text-align: center;
+    width: 5%;
+    top: 0;
+  }
+  .navigation-list {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navigation-link {
+    display: flex;
+    padding: 20px;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .navigation-link-content {
+    margin-left: 10px;
+  }
+
+  .logout-icon {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+ 
+    transform: translateX(-50%);
+    margin-top: 50px;
+  }
+  

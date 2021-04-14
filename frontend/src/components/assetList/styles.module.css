@@ -1,0 +1,32 @@
+.main-container{
+    margin: 5% 5%;
+    width: 100%;
+    z-index: 0;
+    
+
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    vertical-align: top;
+    border-top: 1px solid #e9ecef;
+}
+
+
+.table .thead-light th {
+    color: #8898aa;
+    border-color: #e9ecef;
+    background-color: #f6f9fc;
+}
+
+
+
+
+

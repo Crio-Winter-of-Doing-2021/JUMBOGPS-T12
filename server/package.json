@@ -1,0 +1,34 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "rest api for meme stream web app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server",
+    "test": "mocha --recursive --timeout 1000000 --exit"
+  },
+  "author": "Archisman",
+  "license": "ISC",
+  "dependencies": {
+    "@turf/turf": "^6.3.0",
+    "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.15",
+    "request": "^2.88.2",
+    "socket.io": "^4.0.0",
+    "swagger-jsdoc": "^6.0.2",
+    "swagger-ui-express": "^4.1.6"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
+  }
+}
