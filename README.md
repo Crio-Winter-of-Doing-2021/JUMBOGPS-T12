@@ -50,7 +50,7 @@ This project shall implement a dashboard showing the assets (can be delivery tru
 * * *
 ### React Directory layout
 
-**├── /node_modules/ # 3rd-party libraries and utilities
+**├── /node_modules/ # 3rd-party libraries and utilities                                                                                                           
 ├── /public/ # Static files which are copied into the /build/public folder
 ├── /src/ # The source code of the application
 │ ├── /api/ # Contains API client and axios instance for API calls
