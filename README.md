@@ -2,9 +2,7 @@
 Team ID: JUMBOGPS-T12 | Team Members: Tejeswar &amp; Archisman Chakraborty
 
 
-# GPS Based asset tracking application desgin
-
-![8d4d0a65b931154ebc90f30fc91d2ce5.png](:/bf2882254395416f8133f0c6ac3f46e5)
+# GPS Based asset tracking application
 
 ## 1. Overview
 * * *
@@ -42,11 +40,7 @@ This project shall implement a dashboard showing the assets (can be delivery tru
 - **Unit Testing**: Mocha
 
 
-## Architecture	
-* * *
-![473ab94c898a47f06efc276331194b0f.png](:/416893d0dcee4aeba0f5ea8b3a22b8b3)
 
-![d9b3df2692414fa6cc13f6783be81987.png](:/f90f6d2856004e049d563f294b0477db)
 * * *
 ### React Directory layout
 
@@ -66,10 +60,6 @@ This project shall implement a dashboard showing the assets (can be delivery tru
 ├── package.json # The list of dependencies and utilities**
 
 * * *
-### Backend Services 
-
-![7574cbbba021a039231d5f8333fe1521.png](:/6cc4e754596641f0bfe7a0a4c18b1aac)
-
 
 
 # Mapbox Proof Of Concept
